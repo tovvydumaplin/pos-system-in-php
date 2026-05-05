@@ -1,0 +1,395 @@
+/* ===========================
+   MODERN WHITE THEME STYLES
+   =========================== */
+
+/* Select2 Styling */
+.select2-container .select2-selection--single{
+    height: 38px !important;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered{
+    line-height: 38px !important;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow{
+    height: 38px !important;
+}
+
+.quantityInput{
+    width: 50px !important;
+    padding: 6px 3px;
+    text-align: center;
+    border: 1px solid #cfb1b1;
+    outline: 0;
+    margin-right: 1px;
+}
+
+/* ===========================
+   CARD REDESIGN - WHITE THEME
+   =========================== */
+
+/* Override all colored card backgrounds to white */
+.card.bg-primary,
+.card.bg-warning,
+.card.bg-info,
+.card.bg-secondary,
+.card.bg-success,
+.card.bg-danger {
+    background-color: #ffffff !important;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+    transition: box-shadow 0.3s ease;
+}
+
+/* Card hover effect */
+.card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Fix text colors on white cards */
+.card.bg-primary p,
+.card.bg-primary h5,
+.card.bg-primary small,
+.card.bg-warning p,
+.card.bg-warning h5,
+.card.bg-warning small,
+.card.bg-info p,
+.card.bg-info h5,
+.card.bg-info small,
+.card.bg-secondary p,
+.card.bg-secondary h5,
+.card.bg-secondary small {
+    color: #1f2937 !important;
+}
+
+/* Subtle text for small elements */
+.card small,
+.card .text-sm {
+    color: #6b7280 !important;
+    font-size: 0.875rem;
+}
+
+/* Card body spacing */
+.card-body {
+    padding: 1.25rem;
+}
+
+/* Card with shadow class */
+.card.shadow-sm {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+}
+
+/* ===========================
+   BUTTON REDESIGN - BLUE THEME
+   =========================== */
+
+/* Make all action buttons blue */
+.btn-success {
+    background-color: #2563eb !important;
+    border-color: #2563eb !important;
+    color: #ffffff !important;
+}
+
+.btn-success:hover {
+    background-color: #1d4ed8 !important;
+    border-color: #1d4ed8 !important;
+}
+
+/* Primary button - keep blue */
+.btn-primary {
+    background-color: #2563eb !important;
+    border-color: #2563eb !important;
+}
+
+.btn-primary:hover {
+    background-color: #1d4ed8 !important;
+    border-color: #1d4ed8 !important;
+}
+
+/* Warning buttons - now blue */
+.btn-warning {
+    background-color: #2563eb !important;
+    border-color: #2563eb !important;
+    color: #ffffff !important;
+}
+
+.btn-warning:hover {
+    background-color: #1d4ed8 !important;
+    border-color: #1d4ed8 !important;
+}
+
+/* Keep delete buttons red for safety */
+.btn-danger {
+    background-color: #dc2626 !important;
+    border-color: #dc2626 !important;
+}
+
+.btn-danger:hover {
+    background-color: #b91c1c !important;
+    border-color: #b91c1c !important;
+}
+
+/* Button sizing */
+.btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+/* ===========================
+   TYPOGRAPHY OPTIMIZATION
+   =========================== */
+
+/* Main headings */
+h1 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+h5 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+/* Card headers */
+.card-header {
+    background-color: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    color: #111827;
+    font-size: 1.125rem;
+}
+
+/* Body text */
+body {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: #374151;
+}
+
+/* Table styling */
+.table {
+    font-size: 0.9375rem;
+}
+
+.table thead th {
+    font-weight: 600;
+    color: #111827;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+/* Form labels */
+label {
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.9375rem;
+    margin-bottom: 0.5rem;
+}
+
+/* ===========================
+   HEADER/NAVBAR REDESIGN - WHITE
+   =========================== */
+
+.sb-topnav.navbar-dark {
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.sb-topnav .navbar-brand {
+    color: #111827 !important;
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.sb-topnav .btn-link {
+    color: #374151 !important;
+}
+
+.sb-topnav .nav-link {
+    color: #374151 !important;
+}
+
+.sb-topnav .nav-link:hover {
+    color: #2563eb !important;
+}
+
+/* ===========================
+   SIDEBAR REDESIGN - WHITE
+   =========================== */
+
+.sb-sidenav-dark {
+    background-color: #ffffff !important;
+    border-right: 1px solid #e5e7eb;
+}
+
+.sb-sidenav-dark .sb-sidenav-menu {
+    background-color: #ffffff !important;
+}
+
+.sb-sidenav-dark .sb-sidenav-menu .nav-link {
+    color: #374151 !important;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.sb-sidenav-dark .sb-sidenav-menu .nav-link:hover {
+    background-color: #f3f4f6 !important;
+    color: #2563eb !important;
+}
+
+.sb-sidenav-dark .sb-sidenav-menu .nav-link.active {
+    background-color: #eff6ff !important;
+    color: #2563eb !important;
+    border-left: 3px solid #2563eb;
+}
+
+.sb-sidenav-dark .sb-sidenav-menu .nav-link .sb-nav-link-icon {
+    color: #6b7280 !important;
+}
+
+.sb-sidenav-dark .sb-sidenav-menu .nav-link.active .sb-nav-link-icon {
+    color: #2563eb !important;
+}
+
+.sb-sidenav-dark .sb-sidenav-menu-heading {
+    color: #6b7280 !important;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0.75rem 1rem 0.25rem;
+}
+
+.sb-sidenav-dark .sb-sidenav-menu-nested {
+    background-color: #f9fafb !important;
+}
+
+.sb-sidenav-dark .sb-sidenav-menu-nested .nav-link {
+    padding-left: 3rem !important;
+    padding-top: 0.4rem !important;
+    padding-bottom: 0.4rem !important;
+    font-size: 0.875rem;
+}
+
+.sb-sidenav-dark .sb-sidenav-collapse-arrow {
+    color: #6b7280 !important;
+}
+
+.sb-sidenav-dark .sb-sidenav-footer {
+    background-color: #f9fafb !important;
+    border-top: 1px solid #e5e7eb;
+    color: #374151 !important;
+}
+
+.sb-sidenav-dark .collapse.show {
+    background-color: #f9fafb;
+}
+
+/* ===========================
+   FOOTER REDESIGN - SOLID GRAY
+   =========================== */
+
+footer.bg-light {
+    background-color: #f3f4f6 !important;
+    background-image: none !important;
+    border-top: 1px solid #e5e7eb;
+    box-shadow: 0 -1px 3px 0 rgba(0, 0, 0, 0.05);
+    opacity: 1 !important;
+}
+
+footer {
+    background-color: #f3f4f6 !important;
+    opacity: 1 !important;
+}
+
+footer .text-muted {
+    color: #6b7280 !important;
+    font-size: 0.875rem;
+}
+
+footer a {
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color 0.2s ease;
+}
+
+footer a:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+/* ===========================
+   BADGES
+   =========================== */
+
+.badge {
+    font-weight: 500;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.75rem;
+}
+
+.badge.bg-primary {
+    background-color: #2563eb !important;
+}
+
+.badge.bg-success {
+    background-color: #059669 !important;
+}
+
+.badge.bg-danger {
+    background-color: #dc2626 !important;
+}
+
+.badge.bg-info {
+    background-color: #0891b2 !important;
+}
+
+.badge.bg-secondary {
+    background-color: #6b7280 !important;
+}
+
+/* ===========================
+   UTILITIES
+   =========================== */
+
+/* Enhanced shadows */
+.shadow {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+.shadow-sm {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+}
+
+.shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Border radius */
+.card {
+    border-radius: 0.5rem;
+}
+
+.btn {
+    border-radius: 0.375rem;
+}
