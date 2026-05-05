@@ -1,10 +1,13 @@
 <?php 
 include('includes/header.php'); 
 
+if(session_status() === PHP_SESSION_NONE){
+    session_start();
+}
+
 if(isset($_SESSION['loggedIn'])){
-    ?>
-    <script>window.location.href = 'index.php';</script>
-    <?php
+    header('Location: admin/index.php');
+    exit();
 }
 ?>
 
