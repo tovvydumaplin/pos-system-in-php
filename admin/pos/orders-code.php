@@ -183,8 +183,87 @@ if(isset($_POST['saveCustomerBtn']))
 | SAVE ORDER
 |--------------------------------------------------------------------------
 */
+// if(isset($_POST['saveOrder']))
+// {
+//     if(empty($_SESSION['orderItems'])){
+//         jsonResponse(404,'warning', 'No Items to place order!');
+//     }
+
+//     $phone = validate($_SESSION['cphone']);
+//     $invoice_no = validate($_SESSION['invoice_no']);
+//     $payment_mode = validate($_SESSION['payment_mode']);
+//     $order_placed_by_id = $_SESSION['loggedInUser']['user_id'];
+
+//     $checkCustomer = mysqli_query($conn, "SELECT * FROM customers WHERE phone='$phone' LIMIT 1");
+
+//     if(!$checkCustomer){
+//         jsonResponse(500,'error', 'Something Went Wrong!');
+//     }
+
+//     if(mysqli_num_rows($checkCustomer) > 0)
+//     {
+//         $customerData = mysqli_fetch_assoc($checkCustomer);
+
+//         $sessionItems = $_SESSION['orderItems'];
+
+//         $totalAmount = 0;
+//         foreach($sessionItems as $item){
+//             $totalAmount += $item['price'] * $item['quantity'];
+//         }
+
+//         $data = [
+//             'customer_id' => $customerData['id'],
+//             'invoice_no' => $invoice_no,
+//             'total_amount' => $totalAmount,
+//             'order_date' => date('Y-m-d'),
+//             'order_status' => 'booked',
+//             'payment_mode' => $payment_mode,
+//             'order_placed_by_id' => $order_placed_by_id
+//         ];
+
+//         $result = insert('orders', $data);
+//         $lastOrderId = mysqli_insert_id($conn);
+
+//         // OR number
+//         $trackingNo = 'OR-' . str_pad($lastOrderId, 5, '0', STR_PAD_LEFT);
+//         mysqli_query($conn, "UPDATE orders SET tracking_no='$trackingNo' WHERE id='$lastOrderId'");
+
+//         foreach($sessionItems as $item){
+
+//             if($item['type'] == 'service'){
+//                 $dataOrderItem = [
+//                     'order_id' => $lastOrderId,
+//                     'service_id' => $item['id'],
+//                     'price' => $item['price'],
+//                     'quantity' => $item['quantity'],
+//                 ];
+//             } else {
+//                 $dataOrderItem = [
+//                     'order_id' => $lastOrderId,
+//                     'consumable_id' => $item['id'],
+//                     'price' => $item['price'],
+//                     'quantity' => $item['quantity'],
+//                 ];
+//             }
+
+//             insert('order_items', $dataOrderItem);
+//         }
+
+//         unset($_SESSION['orderItems']);
+//         unset($_SESSION['cphone']);
+//         unset($_SESSION['payment_mode']);
+//         unset($_SESSION['invoice_no']);
+
+//         jsonResponse(200, 'success', 'Order Placed Successfully');
+//     }
+//     else
+//     {
+//         jsonResponse(404, 'warning', 'No Customer Found!');
+//     }
+// }
 if(isset($_POST['saveOrder']))
 {
+    // CHECK IF ORDER ITEMS EXIST
     if(empty($_SESSION['orderItems'])){
         jsonResponse(404,'warning', 'No Items to place order!');
     }
@@ -194,6 +273,7 @@ if(isset($_POST['saveOrder']))
     $payment_mode = validate($_SESSION['payment_mode']);
     $order_placed_by_id = $_SESSION['loggedInUser']['user_id'];
 
+    // CHECK CUSTOMER
     $checkCustomer = mysqli_query($conn, "SELECT * FROM customers WHERE phone='$phone' LIMIT 1");
 
     if(!$checkCustomer){
@@ -206,11 +286,13 @@ if(isset($_POST['saveOrder']))
 
         $sessionItems = $_SESSION['orderItems'];
 
+        // CALCULATE TOTAL
         $totalAmount = 0;
         foreach($sessionItems as $item){
             $totalAmount += $item['price'] * $item['quantity'];
         }
 
+        // INSERT ORDER
         $data = [
             'customer_id' => $customerData['id'],
             'invoice_no' => $invoice_no,
@@ -222,33 +304,93 @@ if(isset($_POST['saveOrder']))
         ];
 
         $result = insert('orders', $data);
+
+        if(!$result){
+            jsonResponse(500, 'error', 'Failed to create order');
+        }
+
         $lastOrderId = mysqli_insert_id($conn);
 
-        // OR number
+        // GENERATE TRACKING NUMBER
         $trackingNo = 'OR-' . str_pad($lastOrderId, 5, '0', STR_PAD_LEFT);
-        mysqli_query($conn, "UPDATE orders SET tracking_no='$trackingNo' WHERE id='$lastOrderId'");
 
+        mysqli_query($conn, "
+            UPDATE orders 
+            SET tracking_no='$trackingNo' 
+            WHERE id='$lastOrderId'
+        ");
+
+        // SAVE ORDER ITEMS
         foreach($sessionItems as $item){
 
+            // =========================
+            // SERVICE
+            // =========================
+            // CHECKS IF ITEM IS SERVICE TYPE OR CONSUMABLE TYPE 
             if($item['type'] == 'service'){
+
                 $dataOrderItem = [
                     'order_id' => $lastOrderId,
                     'service_id' => $item['id'],
                     'price' => $item['price'],
                     'quantity' => $item['quantity'],
                 ];
-            } else {
-                $dataOrderItem = [
-                    'order_id' => $lastOrderId,
-                    'consumable_id' => $item['id'],
-                    'price' => $item['price'],
-                    'quantity' => $item['quantity'],
-                ];
+
+                insert('order_items', $dataOrderItem);
+
             }
 
-            insert('order_items', $dataOrderItem);
+            // =========================
+            // CONSUMABLE
+            // =========================
+            else {
+
+                $consumableId = $item['id'];
+                $deductQty = $item['quantity'];
+
+                $checkStock = mysqli_query($conn, "
+                    SELECT * FROM laundry_consumables 
+                    WHERE id='$consumableId' 
+                    LIMIT 1
+                ");
+
+                if($checkStock && mysqli_num_rows($checkStock) > 0)
+                {
+                    $stockData = mysqli_fetch_assoc($checkStock);
+
+                    // PREVENT NEGATIVE STOCK
+                    if($stockData['quantity'] < $deductQty){
+
+                        jsonResponse(
+                            422,
+                            'warning',
+                            'Not enough stock for '.$stockData['item_name']
+                        );
+                    }
+
+                    // SAVE
+                    $dataOrderItem = [
+                        'order_id' => $lastOrderId,
+                        'consumable_id' => $consumableId,
+                        'price' => $item['price'],
+                        'quantity' => $deductQty,
+                    ];
+
+                    insert('order_items', $dataOrderItem);
+
+                    // DEDUCT STOCK
+                    $newQty = $stockData['quantity'] - $deductQty;
+
+                    mysqli_query($conn, "
+                        UPDATE laundry_consumables 
+                        SET quantity='$newQty'
+                        WHERE id='$consumableId'
+                    ");
+                }
+            }
         }
 
+        // CLEAR SESSION
         unset($_SESSION['orderItems']);
         unset($_SESSION['cphone']);
         unset($_SESSION['payment_mode']);
@@ -261,5 +403,4 @@ if(isset($_POST['saveOrder']))
         jsonResponse(404, 'warning', 'No Customer Found!');
     }
 }
-
 ?>
