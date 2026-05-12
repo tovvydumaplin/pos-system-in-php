@@ -54,26 +54,77 @@ if(isset($_POST['addService']))
 if(isset($_POST['addConsumable']))
 {
     $itemId = $_POST['consumable_id'];
-    $qty = $_POST['item_qty'];
+    $qty = (int) $_POST['item_qty'];
 
     if(empty($itemId)){
         redirect('order-create.php','Select item first');
     }
 
-    $query = mysqli_query($conn, "SELECT * FROM laundry_consumables WHERE id='$itemId' LIMIT 1");
+    if($qty <= 0){
+        redirect('order-create.php','Quantity must be greater than 0');
+    }
+
+    $query = mysqli_query($conn, "
+        SELECT * 
+        FROM laundry_consumables 
+        WHERE id='$itemId' 
+        LIMIT 1
+    ");
+
     $row = mysqli_fetch_assoc($query);
 
-    $_SESSION['orderItems'][] = [
-        'type' => 'item',
-        'id' => $row['id'],
-        'name' => $row['item_name'],
-        'price' => $row['price'] ?? 0,
-        'quantity' => $qty
-    ];
+    if(!$row){
+        redirect('order-create.php','Item not found');
+    }
+
+    $existingQty = 0;
+
+    foreach($_SESSION['orderItems'] as $item){
+        if($item['type'] == 'item' && $item['id'] == $row['id']){
+            $existingQty += $item['quantity'];
+        }
+    }
+
+
+    $totalQty = $existingQty + $qty;
+
+
+    if($totalQty > $row['quantity']){
+
+        $remaining = $row['quantity'] - $existingQty;
+
+        redirect(
+            'order-create.php',
+            'Only '.$remaining.' stock remaining for '.$row['item_name']
+        );
+    }
+
+    $found = false;
+
+    foreach($_SESSION['orderItems'] as $key => $item){
+
+        if($item['type'] == 'item' && $item['id'] == $row['id']){
+
+            $_SESSION['orderItems'][$key]['quantity'] += $qty;
+
+            $found = true;
+        }
+    }
+
+
+    if(!$found){
+
+        $_SESSION['orderItems'][] = [
+            'type' => 'item',
+            'id' => $row['id'],
+            'name' => $row['item_name'],
+            'price' => $row['price'] ?? 0,
+            'quantity' => $qty
+        ];
+    }
 
     redirect('order-create.php','Item Added');
 }
-
 /*
 |--------------------------------------------------------------------------
 | UPDATE QUANTITY
@@ -386,6 +437,17 @@ if(isset($_POST['saveOrder']))
                         SET quantity='$newQty'
                         WHERE id='$consumableId'
                     ");
+                    
+                    $movementData = [
+                        'consumable_id' => $consumableId,
+                        'movement_type' => 'OUT',
+                        'quantity' => $deductQty,
+                        'reference_no' => $trackingNo,
+                        'remarks' => 'Used in customer order',
+                        'created_by' => $order_placed_by_id
+                    ];
+
+                    insert('stock_movement', $movementData);
                 }
             }
         }
