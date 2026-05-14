@@ -234,84 +234,7 @@ if(isset($_POST['saveCustomerBtn']))
 | SAVE ORDER
 |--------------------------------------------------------------------------
 */
-// if(isset($_POST['saveOrder']))
-// {
-//     if(empty($_SESSION['orderItems'])){
-//         jsonResponse(404,'warning', 'No Items to place order!');
-//     }
 
-//     $phone = validate($_SESSION['cphone']);
-//     $invoice_no = validate($_SESSION['invoice_no']);
-//     $payment_mode = validate($_SESSION['payment_mode']);
-//     $order_placed_by_id = $_SESSION['loggedInUser']['user_id'];
-
-//     $checkCustomer = mysqli_query($conn, "SELECT * FROM customers WHERE phone='$phone' LIMIT 1");
-
-//     if(!$checkCustomer){
-//         jsonResponse(500,'error', 'Something Went Wrong!');
-//     }
-
-//     if(mysqli_num_rows($checkCustomer) > 0)
-//     {
-//         $customerData = mysqli_fetch_assoc($checkCustomer);
-
-//         $sessionItems = $_SESSION['orderItems'];
-
-//         $totalAmount = 0;
-//         foreach($sessionItems as $item){
-//             $totalAmount += $item['price'] * $item['quantity'];
-//         }
-
-//         $data = [
-//             'customer_id' => $customerData['id'],
-//             'invoice_no' => $invoice_no,
-//             'total_amount' => $totalAmount,
-//             'order_date' => date('Y-m-d'),
-//             'order_status' => 'booked',
-//             'payment_mode' => $payment_mode,
-//             'order_placed_by_id' => $order_placed_by_id
-//         ];
-
-//         $result = insert('orders', $data);
-//         $lastOrderId = mysqli_insert_id($conn);
-
-//         // OR number
-//         $trackingNo = 'OR-' . str_pad($lastOrderId, 5, '0', STR_PAD_LEFT);
-//         mysqli_query($conn, "UPDATE orders SET tracking_no='$trackingNo' WHERE id='$lastOrderId'");
-
-//         foreach($sessionItems as $item){
-
-//             if($item['type'] == 'service'){
-//                 $dataOrderItem = [
-//                     'order_id' => $lastOrderId,
-//                     'service_id' => $item['id'],
-//                     'price' => $item['price'],
-//                     'quantity' => $item['quantity'],
-//                 ];
-//             } else {
-//                 $dataOrderItem = [
-//                     'order_id' => $lastOrderId,
-//                     'consumable_id' => $item['id'],
-//                     'price' => $item['price'],
-//                     'quantity' => $item['quantity'],
-//                 ];
-//             }
-
-//             insert('order_items', $dataOrderItem);
-//         }
-
-//         unset($_SESSION['orderItems']);
-//         unset($_SESSION['cphone']);
-//         unset($_SESSION['payment_mode']);
-//         unset($_SESSION['invoice_no']);
-
-//         jsonResponse(200, 'success', 'Order Placed Successfully');
-//     }
-//     else
-//     {
-//         jsonResponse(404, 'warning', 'No Customer Found!');
-//     }
-// }
 if(isset($_POST['saveOrder']))
 {
     // CHECK IF ORDER ITEMS EXIST
@@ -451,8 +374,7 @@ if(isset($_POST['saveOrder']))
                 }
             }
         }
-
-        // CLEAR SESSION
+        
         unset($_SESSION['orderItems']);
         unset($_SESSION['cphone']);
         unset($_SESSION['payment_mode']);

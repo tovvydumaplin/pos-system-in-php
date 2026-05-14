@@ -91,5 +91,82 @@
     </div>
   </div>
 </div>
+<!-- Adjust Stock Modal -->
+<div class="modal fade" id="adjustStockModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <form id="adjustStockForm">
+
+                <input type="hidden" name="item_id" id="adjust_item_id">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Adjust Stock</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="mb-3">
+                        <label>Item Name</label>
+                        <input 
+                            type="text" 
+                            id="adjust_item_name" 
+                            class="form-control"
+                            readonly
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Current Stock</label>
+                        <input 
+                            type="number" 
+                            id="current_stock" 
+                            class="form-control"
+                            readonly
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Adjustment Type</label>
+
+                        <select name="adjustment_type" class="form-control" required>
+                            <option value="ADD">Add Stock</option>
+                            <option value="DEDUCT">Deduct Stock</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label>Add Quantity</label>
+                        <input 
+                            type="number" 
+                            name="add_quantity"
+                            class="form-control"
+                            min="1"
+                            required
+                        >
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button 
+                        type="button" 
+                        class="btn btn-secondary" 
+                        data-bs-dismiss="modal"
+                    >
+                        Cancel
+                    </button>
+
+                    <button type="submit" class="btn btn-success">
+                        Update Stock
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
 <?php include('../includes/footer.php'); ?>
 <script src="<?= $baseUrl ?>assets/js/inventory.js"></script>

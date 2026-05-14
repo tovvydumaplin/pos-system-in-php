@@ -46,10 +46,56 @@ if($result && mysqli_num_rows($result) > 0){
     <td><?= $item['price']; ?></td>
     <td><?= $status ?></td>
     <td><?= $item['created_at']; ?></td>
-    <td>
-        <a href="inventory-edit.php?id=<?= $item['id']; ?>" class="btn btn-outline-success btn-sm">Adjust Stock</a>
-        <a href="inventory-edit.php?id=<?= $item['id']; ?>" class="btn btn-outline-primary btn-sm">Edit</a>
-        <a href="inventory-delete.php?id=<?= $item['id']; ?>" class="btn btn-outline-danger btn-sm">Delete</a>
+    <td class="text-center">
+        <div class="dropdown">
+
+            <button 
+                class="btn btn-sm btn-light border" 
+                type="button" 
+                data-bs-toggle="dropdown"
+            >
+                ⋯
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end">
+
+                <li>
+                    <a 
+                        href="#"
+                        class="dropdown-item adjustStockBtn"
+                        data-id="<?= $item['id']; ?>"
+                        data-name="<?= $item['item_name']; ?>"
+                        data-qty="<?= $item['quantity']; ?>"
+                    >
+                        Adjust Stock
+                    </a>
+                </li>
+
+                <li>
+                    <a 
+                        href="inventory-edit.php?id=<?= $item['id']; ?>" 
+                        class="dropdown-item"
+                    >
+                        <i class="bi bi-pencil-square me-2"></i>
+                        Edit
+                    </a>
+                </li>
+
+                <li><hr class="dropdown-divider"></li>
+
+                <li>
+                    <a 
+                        href="inventory-delete.php?id=<?= $item['id']; ?>" 
+                        class="dropdown-item text-danger"
+                    >
+                        <i class="bi bi-trash me-2"></i>
+                        Delete
+                    </a>
+                </li>
+
+            </ul>
+
+        </div>
     </td>
 </tr>
 
