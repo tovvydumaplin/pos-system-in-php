@@ -138,7 +138,6 @@ DROP TABLE IF EXISTS `services`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `services` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `category_id` int NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
   `description` mediumtext COLLATE utf8mb4_general_ci NOT NULL,
   `price` int NOT NULL,
@@ -157,7 +156,7 @@ CREATE TABLE `services` (
 
 LOCK TABLES `services` WRITE;
 /*!40000 ALTER TABLE `services` DISABLE KEYS */;
-INSERT INTO `services` VALUES (1,2,'2 Wash 3 Rinse','Level: 7\r\nPulses: 18',90,88,'assets/uploads/services/1752813860.jpg',0,'2024-05-03 00:00:00'),(2,2,'1 Wash 3 Rinse / 2 Wash 2 Rinse','Level: 6\r\nPulses: 15',75,98,'assets/uploads/services/1752813872.jpg',0,'2024-05-03 00:00:00'),(3,2,'Soak Spin','Level: 4\r\nPulses: 9',45,96,'assets/uploads/services/1752813882.jpg',0,'2024-05-03 00:00:00'),(4,2,'Rinse Spin / Tub Clean','Level: 3\r\nPulses: 6',30,100,'assets/uploads/services/1752813891.jpg',0,'2024-05-03 00:00:00'),(7,1,'test','123',123,1,'',0,'2026-05-01 03:01:00');
+INSERT INTO `services` VALUES (1,'2 Wash 3 Rinse','Level: 7\r\nPulses: 18',90,88,'assets/uploads/services/1752813860.jpg',0,'2024-05-03 00:00:00'),(2,'1 Wash 3 Rinse / 2 Wash 2 Rinse','Level: 6\r\nPulses: 15',75,98,'assets/uploads/services/1752813872.jpg',0,'2024-05-03 00:00:00'),(3,'Soak Spin','Level: 4\r\nPulses: 9',45,96,'assets/uploads/services/1752813882.jpg',0,'2024-05-03 00:00:00'),(4,'Rinse Spin / Tub Clean','Level: 3\r\nPulses: 6',30,100,'assets/uploads/services/1752813891.jpg',0,'2024-05-03 00:00:00'),(7,'test','123',123,1,'',0,'2026-05-01 03:01:00');
 /*!40000 ALTER TABLE `services` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -175,6 +174,7 @@ CREATE TABLE `users` (
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `phone` varchar(20) DEFAULT NULL,
+  `branch_id` int DEFAULT NULL,
   `is_ban` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -188,7 +188,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'Super admin','admin','superadmin@gmail.com','$2y$12$8BSPnLUS.WnttsQ8qQAX4.2fq7j.tNKOGUn6WxNvjycqE8nx7KlGW','1234567890',0,'2026-05-01 07:10:11'),(2,'Staff User','staff','staff@gmail.com','$2y$12$/1Wz0Yd7BdvPMnBEaY3gJ.v2vQtt69uMVq57ydl6gSygghfwLSYdi','0987654321',0,'2026-05-01 07:10:11');
+INSERT INTO `users` VALUES (1,'Super admin','admin','superadmin@gmail.com','$2y$12$8BSPnLUS.WnttsQ8qQAX4.2fq7j.tNKOGUn6WxNvjycqE8nx7KlGW','1234567890',NULL,0,'2026-05-01 07:10:11'),(2,'Staff User','staff','staff@gmail.com','$2y$12$/1Wz0Yd7BdvPMnBEaY3gJ.v2vQtt69uMVq57ydl6gSygghfwLSYdi','0987654321',NULL,0,'2026-05-01 07:10:11');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

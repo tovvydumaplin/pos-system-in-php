@@ -1,5 +1,6 @@
 <?php
     $page = substr($_SERVER['SCRIPT_NAME'], strrpos($_SERVER['SCRIPT_NAME'], "/")+1);
+    $isAdmin = isset($_SESSION['loggedInUser']['user_type']) && $_SESSION['loggedInUser']['user_type'] == 'admin';
 ?>
 
 <div id="layoutSidenav_nav">
@@ -22,8 +23,7 @@
                     <div class="sb-nav-link-icon"><i class="fas fa-list"></i></div>
                     Orders
                 </a>
-                
-                
+                <?php if($isAdmin): ?>
                 <div class="sb-sidenav-menu-heading">Interface</div>
 
                 <a class="nav-link <?= ($page == 'categories-create.php') || ($page == 'categories.php') ? 'collapse active':'collapsed'; ?>"
@@ -136,6 +136,8 @@
                         <a class="nav-link <?= $page == 'customers.php' ? 'active':''; ?>" href="<?= $baseUrl ?>customers/customers.php">View Customers</a>
                     </nav>
                 </div>
+
+                <?php endif; ?>
             </div>
 
         </div>

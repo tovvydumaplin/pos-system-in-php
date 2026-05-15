@@ -347,7 +347,6 @@ if(isset($_POST['updateCategory']))
 
 if(isset($_POST['saveService']))
 {
-    $category_id = validate($_POST['category_id']);
     $name = validate($_POST['name']);
     $description = validate($_POST['description']);
 
@@ -372,7 +371,6 @@ if(isset($_POST['saveService']))
     }
 
     $data = [
-        'category_id' => $category_id,
         'name' => $name,
         'description' => $description,
         'price' => $price,
@@ -384,9 +382,9 @@ if(isset($_POST['saveService']))
     $result = insert('services',$data);
 
     if($result){
-        redirect('services.php','Service Created Successfully!');
+        redirect('services/services.php','Service Created Successfully!');
     }else{
-        redirect('services-create.php','Something Went Wrong!');
+        redirect('services/services-create.php','Something Went Wrong!');
     }
 }
 
@@ -396,10 +394,9 @@ if(isset($_POST['updateService']))
 
     $serviceData = getById('services',$service_id);
     if(!$serviceData){
-        redirect('services.php','No such service found');
+        redirect('services/services.php','No such service found');
     }
 
-    $category_id = validate($_POST['category_id']);
     $name = validate($_POST['name']);
     $description = validate($_POST['description']);
 
@@ -429,7 +426,6 @@ if(isset($_POST['updateService']))
     }
 
     $data = [
-        'category_id' => $category_id,
         'name' => $name,
         'description' => $description,
         'price' => $price,
@@ -441,9 +437,9 @@ if(isset($_POST['updateService']))
     $result = update('services', $service_id, $data);
 
     if($result){
-        redirect('services-edit.php?id='.$service_id,'Service Updated Successfully!');
+        redirect('services/services-edit.php?id='.$service_id,'Service Updated Successfully!');
     }else{
-        redirect('services-edit.php?id='.$service_id,'Something Went Wrong!');
+        redirect('services/services-edit.php?id='.$service_id,'Something Went Wrong!');
     }
 }
 

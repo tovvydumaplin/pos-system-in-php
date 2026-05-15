@@ -1,4 +1,4 @@
-<?php include('includes/header.php'); ?>
+<?php include('../includes/header.php'); ?>
 
 <div class="container-fluid px-4">
     <div class="card mt-4 shadow-sm">
@@ -11,7 +11,7 @@
 
             <?php alertMessage(); ?>
 
-            <form action="code.php" method="POST" enctype="multipart/form-data">
+            <form action="<?= $baseUrl ?>code.php" method="POST" enctype="multipart/form-data">
                 
 
                 <?php
@@ -31,33 +31,6 @@
                         <input type="hidden" name="service_id" value="<?= $service['data']['id']; ?>" />
                         
                         <div class="row">
-                            <div class="col-md-12 mb-3">
-                                <label>Select Category</label>
-                                <select name="category_id" class="form-select">
-                                    <option value="">Select Category</option>
-                                    <?php
-                                    $categories = getAll('categories');
-                                    if($categories){
-                                        if(mysqli_num_rows($categories) > 0){
-                                            foreach($categories as $cateItem){
-                                                ?>
-                                                    <option 
-                                                        value="<?= $cateItem['id']; ?>"
-                                                        <?= $service['data']['category_id'] == $cateItem['id'] ? 'selected':''; ?>
-                                                    >
-                                                        <?= $cateItem['name']; ?>    
-                                                    </option>
-                                                <?php
-                                            }
-                                        }else{
-                                            echo '<option value="">No Categories found</option>';    
-                                        }
-                                    }else{
-                                        echo '<option value="">Something Went Wrong!</option>';
-                                    }
-                                    ?>
-                                </select>
-                            </div>
                             <div class="col-md-12 mb-3">
                                 <label for="">Service Name *</label>
                                 <input type="text" name="name" required value="<?= $service['data']['name']; ?>" class="form-control" />
@@ -109,4 +82,4 @@
     </div>
 </div>
 
-<?php include('includes/footer.php'); ?>
+<?php include('../includes/footer.php'); ?>

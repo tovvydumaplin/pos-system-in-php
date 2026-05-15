@@ -39,6 +39,17 @@ function alertMessage(){
 }
 
 // Insert record using this function
+function sqlValue($value)
+{
+    global $conn;
+
+    if($value === null){
+        return "NULL";
+    }
+
+    return "'".mysqli_real_escape_string($conn, (string)$value)."'";
+}
+
 function insert($tableName, $data)
 {
     global $conn;
@@ -49,7 +60,7 @@ function insert($tableName, $data)
     $values = array_values($data);
 
     $finalColumn = implode(',', $columns);
-    $finalValues = "'".implode("', '", $values)."'";
+    $finalValues = implode(', ', array_map('sqlValue', $values));
 
     $query = "INSERT INTO $table ($finalColumn) VALUES ($finalValues)";
     $result = mysqli_query($conn,$query);
@@ -67,7 +78,7 @@ function update($tableName, $id, $data){
     $updateDataString = "";
 
     foreach($data as $column => $value){
-        $updateDataString .= $column.'='."'$value',";
+        $updateDataString .= $column.'='.sqlValue($value).",";
     }
 
     $finalUpdateData = substr(trim($updateDataString),0,-1);

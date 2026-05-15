@@ -35,6 +35,39 @@ if ($adminPos !== false) {
 
     <link href="<?= $baseUrl ?>assets/css/custom.css" rel="stylesheet" />
 
+    <style>
+        .sb-topnav .navbar-nav {
+            min-width: 0;
+        }
+
+        .sb-topnav #navbarDropdown {
+            max-width: 260px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .sb-topnav #navbarDropdown .badge {
+            flex: 0 0 auto;
+        }
+
+        @media (max-width: 575.98px) {
+            .sb-topnav .navbar-brand {
+                max-width: 170px;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
+
+            .sb-topnav #navbarDropdown {
+                max-width: 150px;
+            }
+        }
+    </style>
+
 </head>
 <body class="sb-nav-fixed">
 
