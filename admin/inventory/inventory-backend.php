@@ -1,13 +1,14 @@
 <?php
 require '../../config/function.php';
-
+$branchId = $_SESSION['loggedInUser']['branch_id'];
 if(isset($_POST['saveItem']))
 {
     $name = validate($_POST['item_name']);
+    $branch_id = validate($_POST['branch_id']);
     $qty = validate($_POST['quantity']);
     $price = validate($_POST['price']);
 
-    if($name == '' || $qty == '' || $price == ''){
+    if($name == '' || $branch_id == '' || $qty == '' || $price == ''){
         echo json_encode([
             'status' => 422,
             'message' => 'All fields are required'
@@ -17,6 +18,7 @@ if(isset($_POST['saveItem']))
 
     $data = [
         'item_name' => $name,
+        'branch_id' => $branch_id,
         'quantity' => $qty,
         'price' => $price,
         'created_at' => date('Y-m-d H:i:s')

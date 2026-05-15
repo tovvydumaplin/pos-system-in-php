@@ -9,7 +9,16 @@ if(isset($_POST['loginBtn']))
 
     if($email != '' && $password != '')
     {
-        $query = "SELECT * FROM users WHERE email='$email' LIMIT 1";
+            $query = "
+            SELECT 
+                users.*,
+                branches.branch_name
+            FROM users
+            LEFT JOIN branches
+                ON branches.id = users.branch_id
+            WHERE users.email='$email'
+            LIMIT 1
+            ";
         $result = mysqli_query($conn, $query);
         if($result){
 
@@ -33,6 +42,8 @@ if(isset($_POST['loginBtn']))
                     'user_type' => $row['user_type'],
                     'email' => $row['email'],
                     'phone' => $row['phone'],
+                    'branch_id' => $row['branch_id'],
+                    'branch_name' => $row['branch_name'],
                 ];
 
                 redirect('admin/index.php','Logged In Successfully');

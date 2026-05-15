@@ -1,8 +1,9 @@
 <?php include('../includes/header.php'); ?>
 
 <div class="container-fluid px-4">
+    <h1 class="mb-1 mt-4"><?= $_SESSION['loggedInUser']['branch_name']; ?> Stocks</h1>
     <div class="card mt-4 shadow-sm">
-
+        
         <!-- HEADER -->
         <div class="card-header">
             <div class="row align-items-center">
@@ -51,6 +52,7 @@
     </div>
 
     <!-- MODAL  -->
+<!-- MODAL -->
 <div class="modal fade" id="addItemModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -65,25 +67,79 @@
         <div class="modal-body">
 
             <div class="mb-3">
-            <label>Item Name</label>
-            <input type="text" name="item_name" class="form-control" required>
+                <label>Item Name</label>
+                <input 
+                    type="text" 
+                    name="item_name" 
+                    class="form-control" 
+                    required
+                >
+            </div>
+
+            <!-- Branch Required -->
+            <?php
+            $branchId = $_SESSION['loggedInUser']['branch_id'];
+
+            $getBranch = mysqli_query(
+                $conn,
+                "SELECT branch_name FROM branches WHERE id='$branchId' LIMIT 1"
+            );
+
+            $branch = mysqli_fetch_assoc($getBranch);
+            ?>
+
+            <div class="mb-3">
+                <label>Branch</label>
+
+                <input 
+                    type="hidden"
+                    name="branch_id"
+                    value="<?= $branchId; ?>"
+                >
+
+                <input 
+                    type="text"
+                    class="form-control"
+                    value="<?= $branch['branch_name']; ?>"
+                    readonly
+                >
             </div>
 
             <div class="mb-3">
-            <label>Quantity</label>
-            <input type="number" name="quantity" class="form-control" required>
+                <label>Quantity</label>
+                <input 
+                    type="number" 
+                    name="quantity" 
+                    class="form-control" 
+                    required
+                >
             </div>
 
             <div class="mb-3">
-            <label>Price</label>
-            <input type="number" name="price" class="form-control" required>
+                <label>Price</label>
+                <input 
+                    type="number" 
+                    name="price" 
+                    class="form-control" 
+                    step="0.01"
+                    required
+                >
             </div>
 
         </div>
 
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-primary">Save Item</button>
+            <button 
+                type="button" 
+                class="btn btn-secondary" 
+                data-bs-dismiss="modal"
+            >
+                Cancel
+            </button>
+
+            <button type="submit" class="btn btn-primary">
+                Save Item
+            </button>
         </div>
 
         </form>
@@ -99,6 +155,7 @@
             <form id="adjustStockForm">
 
                 <input type="hidden" name="item_id" id="adjust_item_id">
+                <input type="hidden" name="branch_id" id="adjust_branch_id">
 
                 <div class="modal-header">
                     <h5 class="modal-title">Adjust Stock</h5>
@@ -110,8 +167,18 @@
                     <div class="mb-3">
                         <label>Item Name</label>
                         <input 
-                            type="text" 
-                            id="adjust_item_name" 
+                            type="text"
+                            id="adjust_item_name"
+                            class="form-control"
+                            readonly
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Branch</label>
+                        <input
+                            type="text"
+                            id="adjust_branch_name"
                             class="form-control"
                             readonly
                         >
@@ -119,9 +186,9 @@
 
                     <div class="mb-3">
                         <label>Current Stock</label>
-                        <input 
-                            type="number" 
-                            id="current_stock" 
+                        <input
+                            type="number"
+                            id="current_stock"
                             class="form-control"
                             readonly
                         >
@@ -135,11 +202,11 @@
                             <option value="DEDUCT">Deduct Stock</option>
                         </select>
                     </div>
-                    
+
                     <div class="mb-3">
-                        <label>Add Quantity</label>
-                        <input 
-                            type="number" 
+                        <label>Quantity</label>
+                        <input
+                            type="number"
                             name="add_quantity"
                             class="form-control"
                             min="1"
@@ -150,9 +217,9 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button 
-                        type="button" 
-                        class="btn btn-secondary" 
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
                         data-bs-dismiss="modal"
                     >
                         Cancel

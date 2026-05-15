@@ -1,5 +1,5 @@
 <?php include('../includes/header.php'); ?>
-
+<?php $branchId = $_SESSION['loggedInUser']['branch_id']; ?>
 <div class="container-fluid px-4">
     <div class="card mt-4 shadow-sm">
 
@@ -67,10 +67,10 @@
 
             <?php
 
-            // 🔥 CLEAN DYNAMIC QUERY
-            $query = "SELECT o.*, c.* FROM orders o 
-                      JOIN customers c ON c.id = o.customer_id 
-                      WHERE 1=1";
+            $query = "SELECT o.*, c.* 
+                    FROM orders o
+                    JOIN customers c ON c.id = o.customer_id
+                    WHERE o.branch_id='$branchId'";
 
             if(isset($_GET['date']) && $_GET['date'] != ''){
                 $date = validate($_GET['date']);

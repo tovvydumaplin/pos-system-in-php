@@ -59,18 +59,28 @@
                                     <option value="">-- Select Item --</option>
 
                                     <?php
-                                        $items = getAll('laundry_consumables');
-                                        if($items && mysqli_num_rows($items) > 0){
-                                            foreach($items as $item){
-                                                $disabled = $item['quantity'] <= 0 ? 'disabled' : '';
+                                    $branchId = $_SESSION['loggedInUser']['branch_id'];
+
+                                    $items = mysqli_query(
+                                        $conn,
+                                        "SELECT * 
+                                        FROM laundry_consumables
+                                        WHERE branch_id='$branchId'
+                                        ORDER BY item_name ASC"
+                                    );
+
+                                    if($items && mysqli_num_rows($items) > 0){
+                                        foreach($items as $item){
+
+                                            $disabled = $item['quantity'] <= 0 ? 'disabled' : '';
                                     ?>
                                         <option value="<?= $item['id']; ?>" <?= $disabled; ?>>
-                                            <?= $item['item_name']; ?> 
+                                            <?= $item['item_name']; ?>
                                             (<?= $item['quantity']; ?>)
                                         </option>
                                     <?php
-                                            }
                                         }
+                                    }
                                     ?>
                                 </select>
                             </div>

@@ -1,6 +1,15 @@
 <?php
 require '../../config/function.php';
-$query = "SELECT * FROM laundry_consumables WHERE 1=1";
+$branchId = $_SESSION['loggedInUser']['branch_id'];
+$query = "
+SELECT 
+    laundry_consumables.*,
+    branches.branch_name
+FROM laundry_consumables
+LEFT JOIN branches 
+    ON branches.id = laundry_consumables.branch_id
+WHERE laundry_consumables.branch_id='$branchId'
+";
 
 if(isset($_GET['search']) && $_GET['search'] != ''){
     $search = validate($_GET['search']);
@@ -27,7 +36,9 @@ if($result && mysqli_num_rows($result) > 0){
     </thead>
     <tbody>
 
-<?php foreach($result as $item): 
+<?php 
+    $no = 1;
+    foreach($result as $item): 
 
     if ($item['quantity'] <= 0) {
         $status = "<span class='badge bg-danger'>OUT</span>";
@@ -40,7 +51,7 @@ if($result && mysqli_num_rows($result) > 0){
 ?>
 
 <tr>
-    <td><?= $item['id']; ?></td>
+    <td><?= $no++; ?></td>
     <td><?= $item['item_name']; ?></td>
     <td><?= $item['quantity']; ?></td>
     <td><?= $item['price']; ?></td>
@@ -66,6 +77,8 @@ if($result && mysqli_num_rows($result) > 0){
                         data-id="<?= $item['id']; ?>"
                         data-name="<?= $item['item_name']; ?>"
                         data-qty="<?= $item['quantity']; ?>"
+                        data-branch="<?= $item['branch_id']; ?>"
+                        data-branch-name="<?= $item['branch_name']; ?>"
                     >
                         Adjust Stock
                     </a>

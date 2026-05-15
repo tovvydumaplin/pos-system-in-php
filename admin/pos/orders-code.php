@@ -246,6 +246,7 @@ if(isset($_POST['saveOrder']))
     $invoice_no = validate($_SESSION['invoice_no']);
     $payment_mode = validate($_SESSION['payment_mode']);
     $order_placed_by_id = $_SESSION['loggedInUser']['user_id'];
+    $branch_id = $_SESSION['loggedInUser']['branch_id'];
 
     // CHECK CUSTOMER
     $checkCustomer = mysqli_query($conn, "SELECT * FROM customers WHERE phone='$phone' LIMIT 1");
@@ -274,7 +275,8 @@ if(isset($_POST['saveOrder']))
             'order_date' => date('Y-m-d'),
             'order_status' => 'booked',
             'payment_mode' => $payment_mode,
-            'order_placed_by_id' => $order_placed_by_id
+            'order_placed_by_id' => $order_placed_by_id,
+            'branch_id' => $branch_id
         ];
 
         $result = insert('orders', $data);

@@ -29,9 +29,16 @@
 
                     $trackingNo = validate($_GET['track']);
 
-                    $query = "SELECT o.*, c.* FROM orders o, customers c 
-                                WHERE c.id = o.customer_id AND tracking_no='$trackingNo' 
-                                ORDER BY o.id DESC";
+                    $branchId = $_SESSION['loggedInUser']['branch_id'];
+
+                    $query = "
+                    SELECT o.*, c.*
+                    FROM orders o
+                    JOIN customers c ON c.id=o.customer_id
+                    WHERE o.tracking_no='$trackingNo'
+                    AND o.branch_id='$branchId'
+                    ORDER BY o.id DESC
+                    ";
                                 
                     $orders = mysqli_query($conn, $query);
                     if($orders)

@@ -25,8 +25,16 @@
                             <?php
                         }
 
-                        $orderQuery = "SELECT o.*, c.* FROM orders o, customers c 
-                            WHERE c.id=o.customer_id AND tracking_no='$trackingNo' LIMIT 1";
+                        $branchId = $_SESSION['loggedInUser']['branch_id'];
+
+                        $orderQuery = "
+                        SELECT o.*, c.*
+                        FROM orders o
+                        JOIN customers c ON c.id=o.customer_id
+                        WHERE o.tracking_no='$trackingNo'
+                        AND o.branch_id='$branchId'
+                        LIMIT 1
+                        ";
                         $orderQueryRes = mysqli_query($conn, $orderQuery);
                         
                         if(!$orderQueryRes){

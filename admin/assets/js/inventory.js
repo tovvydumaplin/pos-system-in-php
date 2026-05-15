@@ -45,10 +45,15 @@ $(document).ready(function(){
         let id = $(this).data('id');
         let name = $(this).data('name');
         let qty = $(this).data('qty');
+        let branchId = $(this).data('branch');
+        let branchName = $(this).data('branch-name');
 
         $('#adjust_item_id').val(id);
         $('#adjust_item_name').val(name);
         $('#current_stock').val(qty);
+
+        $('#adjust_branch_id').val(branchId);
+        $('#adjust_branch_name').val(branchName);
 
         $('#adjustStockModal').modal('show');
 
