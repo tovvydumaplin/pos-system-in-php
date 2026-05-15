@@ -57,36 +57,51 @@
                 </div>
                 
 
-<a class="nav-link <?= ($page == 'inventory.php') || ($page == 'stock-movement.php') ? 'collapse active':'collapsed'; ?>" 
-    href="#" 
-    data-bs-toggle="collapse" 
-    data-bs-target="#collapseInventory" 
-    aria-expanded="false" 
-    aria-controls="collapseInventory">
+                <a class="nav-link <?= ($page == 'inventory.php') || ($page == 'stock-movement.php') ? 'collapse active':'collapsed'; ?>" 
+                    href="#" 
+                    data-bs-toggle="collapse" 
+                    data-bs-target="#collapseInventory" 
+                    aria-expanded="false" 
+                    aria-controls="collapseInventory">
 
-    <div class="sb-nav-link-icon"><i class="fas fa-box"></i></div>
-    Inventory
-    <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-</a>
+                    <div class="sb-nav-link-icon"><i class="fas fa-box"></i></div>
+                    Inventory
+                    <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                </a>
 
-<div class="collapse <?= ($page == 'inventory.php') || ($page == 'stock-movement.php') ? 'show':''; ?>" 
-    id="collapseInventory" 
-    data-bs-parent="#sidenavAccordion">
+                <div class="collapse <?= ($page == 'inventory.php') || ($page == 'stock-movement.php') ? 'show':''; ?>" 
+                    id="collapseInventory" 
+                    data-bs-parent="#sidenavAccordion">
 
-    <nav class="sb-sidenav-menu-nested nav">
+                    <nav class="sb-sidenav-menu-nested nav">
 
-        <a class="nav-link <?= $page == 'inventory.php' ? 'active':''; ?>" 
-            href="<?= $baseUrl ?>inventory/inventory.php">
-            Laundry Stocks
-        </a>
+                        <a class="nav-link <?= $page == 'inventory.php' ? 'active':''; ?>" 
+                            href="<?= $baseUrl ?>inventory/inventory.php">
+                            Laundry Stocks
+                        </a>
 
-        <a class="nav-link <?= $page == 'stock-movement.php' ? 'active':''; ?>" 
-            href="<?= $baseUrl ?>inventory/stock-movement.php">
-            Stock Movement
-        </a>
+                        <a class="nav-link <?= $page == 'stock-movement.php' ? 'active':''; ?>" 
+                            href="<?= $baseUrl ?>inventory/stock-movement.php">
+                            Stock Movement
+                        </a>
 
-    </nav>
-</div>
+                    </nav>
+                </div>
+
+                <div class="sb-sidenav-menu-heading">Admin</div>
+
+                <a class="nav-link <?= $page == 'branches.php' ? 'active':''; ?>" 
+                    href="<?= $baseUrl ?>branches/branches.php">
+                    <div class="sb-nav-link-icon"><i class="fas fa-building"></i></div>
+                    Manage Branches
+                </a>
+
+                <a class="nav-link <?= $page == 'backup-restore.php' ? 'active':''; ?>" 
+                    href="<?= $baseUrl ?>backup-restore/backup-restore.php">
+                    <div class="sb-nav-link-icon"><i class="fas fa-database"></i></div>
+                    Backup & Restore
+                </a>
+
                 <div class="sb-sidenav-menu-heading">Manage Users</div>
                 
                 <!-- Unified Users Management -->
@@ -121,8 +136,8 @@
                         <a class="nav-link <?= $page == 'customers.php' ? 'active':''; ?>" href="<?= $baseUrl ?>customers/customers.php">View Customers</a>
                     </nav>
                 </div>
-
             </div>
+
         </div>
         <div class="sb-sidenav-footer">
             <div class="small">Logged in as:</div>

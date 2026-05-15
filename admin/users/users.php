@@ -40,12 +40,22 @@
                             <th>Type</th>
                             <th>Email</th>
                             <th>Phone</th>
+                            <th>Branch</th>
                             <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach($users as $userItem) : ?>
+                        <?php foreach($users as $userItem) : 
+                            // Get branch name if assigned
+                            $branchName = '-';
+                            if(isset($userItem['branch_id']) && !empty($userItem['branch_id'])){
+                                $branchData = getById('branches', $userItem['branch_id']);
+                                if($branchData && $branchData['status'] == 200){
+                                    $branchName = $branchData['data']['branch_name'];
+                                }
+                            }
+                        ?>
                         <tr data-usertype="<?= $userItem['user_type'] ?>">
                             <td><?= $userItem['id'] ?></td>
                             <td><?= $userItem['name'] ?></td>
@@ -60,6 +70,7 @@
                             </td>
                             <td><?= $userItem['email'] ?></td>
                             <td><?= $userItem['phone'] ?></td>
+                            <td><?= $branchName ?></td>
                             <td>
                                 <?php
                                     if($userItem['is_ban'] == 1){

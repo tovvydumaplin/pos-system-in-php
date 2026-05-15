@@ -66,6 +66,22 @@
                                     <label for="">Phone Number *</label>
                                     <input type="number" name="phone" required value="<?= $userData['data']['phone']; ?>" class="form-control" />
                                 </div>
+                                                                <div class="col-md-6 mb-3">
+                                    <label for="">Branch (Optional)</label>
+                                    <select name="branch_id" class="form-select">
+                                        <option value="">-- Select Branch --</option>
+                                        <?php
+                                        $branches = getAll('branches');
+                                        if($branches && mysqli_num_rows($branches) > 0){
+                                            foreach($branches as $branch){
+                                                $selected = (isset($userData['data']['branch_id']) && $userData['data']['branch_id'] == $branch['id']) ? 'selected' : '';
+                                                echo '<option value="'.$branch['id'].'" '.$selected.'>'.$branch['branch_name'].'</option>';
+                                            }
+                                        }
+                                        ?>
+                                    </select>
+                                    <small class="text-muted">Assign user to a specific branch</small>
+                                </div>
                                 
                                 <div class="col-md-3 mb-3">
                                     <label for="">Ban Status</label>

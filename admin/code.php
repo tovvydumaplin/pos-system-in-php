@@ -14,6 +14,7 @@ if(isset($_POST['saveUser']))
     $password = validate($_POST['password']);
     $phone = validate($_POST['phone']);
     $is_ban = isset($_POST['is_ban']) == true ? 1:0;
+    $branch_id = isset($_POST['branch_id']) && !empty($_POST['branch_id']) ? validate($_POST['branch_id']) : null;
 
     if($name != '' && $user_type != '' && $email != '' && $password != ''){
 
@@ -33,7 +34,8 @@ if(isset($_POST['saveUser']))
             'email' => $email,
             'password' => $bcrypt_password,
             'phone' => $phone,
-            'is_ban' => $is_ban
+            'is_ban' => $is_ban,
+            'branch_id' => $branch_id
         ];
         $result = insert('users', $data);
 
@@ -64,6 +66,7 @@ if(isset($_POST['updateUser']))
     $password = validate($_POST['password']);
     $phone = validate($_POST['phone']);
     $is_ban = isset($_POST['is_ban']) == true ? 1:0;
+    $branch_id = isset($_POST['branch_id']) && !empty($_POST['branch_id']) ? validate($_POST['branch_id']) : null;
 
     // Check if email is already used by another user
     $EmailCheckQuery = "SELECT * FROM users WHERE email='$email' AND id!='$userId'";
@@ -89,7 +92,8 @@ if(isset($_POST['updateUser']))
             'email' => $email,
             'password' => $hashedPassword,
             'phone' => $phone,
-            'is_ban' => $is_ban
+            'is_ban' => $is_ban,
+            'branch_id' => $branch_id
         ];
         $result = update('users', $userId, $data);
 

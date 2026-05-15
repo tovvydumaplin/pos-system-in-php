@@ -7,6 +7,12 @@ require 'dbcon.php';
 function validate($inputData){
 
     global $conn;
+    
+    // Handle null, empty, or non-string values
+    if($inputData === null || $inputData === '' || !is_string($inputData)){
+        return $inputData === null ? null : '';
+    }
+    
     $validatedData = mysqli_real_escape_string($conn, $inputData);
     return trim($validatedData);
 }
