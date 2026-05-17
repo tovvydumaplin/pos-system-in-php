@@ -37,7 +37,11 @@
                         <tr>
                             <td><?= $item['id'] ?></td>
                             <td>
-                                <img src="../<?= $item['image']; ?>" style="width:50px;height:50px;" alt="Img" />
+                                <?php if(!empty($item['image'])): ?>
+                                    <img src="../../<?= $item['image']; ?>" style="width:50px;height:50px;object-fit:cover;border-radius:4px;" alt="<?= $item['name']; ?>" />
+                                <?php else: ?>
+                                    <span class="text-muted">No image</span>
+                                <?php endif; ?>
                             </td>
                             <td><?= $item['name'] ?></td>
                             <td>

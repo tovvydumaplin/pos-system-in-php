@@ -395,12 +395,28 @@ footer a:hover {
 }
 
 /* ===========================
+   CONTAINER OVERRIDES
+   =========================== */
+
+/* Remove Bootstrap's container max-width constraints for full-width layout */
+.container-xxl, 
+.container-xl, 
+.container-lg, 
+.container-md, 
+.container-sm, 
+.container {
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* ===========================
    DASHBOARD LAYOUT
    =========================== */
 
 .dashboard-page {
     padding-bottom: 2rem;
-    max-width: 1500px;
+    width: 100%;
 }
 
 .dashboard-header {

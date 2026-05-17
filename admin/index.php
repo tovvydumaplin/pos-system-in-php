@@ -3,6 +3,14 @@
 <?php
     $todayDate = date('Y-m-d');
 
+    $userType     = $_SESSION['loggedInUser']['user_type'];
+    $userBranchId = $_SESSION['loggedInUser']['branch_id'] ?? null;
+    $isSuperAdmin = ($userType === 'super_admin');
+
+    // Branch clause fragments used across queries
+    $orderBranchWhere = $isSuperAdmin ? '1=1' : "branch_id='" . (int)$userBranchId . "'";
+    $userBranchWhere  = $isSuperAdmin ? '' : " AND branch_id='" . (int)$userBranchId . "'";
+
     function dashboardCountWhere($tableName, $whereClause)
     {
         global $conn;
@@ -34,12 +42,24 @@
         return 0;
     }
 
-    $adminCount = dashboardCountWhere('users', "user_type='admin'");
-    $staffCount = dashboardCountWhere('users', "user_type='staff'");
-    $todayOrders = dashboardCountWhere('orders', "order_date='$todayDate'");
-    $todaySales = dashboardOrderTotal("order_date='$todayDate'");
-    $totalSales = dashboardOrderTotal();
-    $recentOrders = mysqli_query($conn, "SELECT o.*, c.name, c.phone FROM orders o LEFT JOIN customers c ON c.id = o.customer_id ORDER BY o.id DESC LIMIT 5");
+    $adminCount  = dashboardCountWhere('users', "user_type='admin'" . $userBranchWhere);
+    $staffCount  = dashboardCountWhere('users', "user_type='staff'" . $userBranchWhere);
+    $totalUsers  = dashboardCountWhere('users', "1=1" . $userBranchWhere);
+
+    $todayOrders = dashboardCountWhere('orders', "order_date='$todayDate' AND $orderBranchWhere");
+    $totalOrders = dashboardCountWhere('orders', $orderBranchWhere);
+    $todaySales  = dashboardOrderTotal("order_date='$todayDate' AND $orderBranchWhere");
+    $totalSales  = dashboardOrderTotal($orderBranchWhere);
+
+    $recentOrdersSql = "
+        SELECT o.*, c.name, c.phone
+        FROM orders o
+        LEFT JOIN customers c ON c.id = o.customer_id
+        WHERE $orderBranchWhere
+        ORDER BY o.id DESC
+        LIMIT 5
+    ";
+    $recentOrders = mysqli_query($conn, $recentOrdersSql);
 ?>
 
 <div class="container-fluid px-4 dashboard-page">
@@ -49,6 +69,12 @@
             <p class="dashboard-kicker mb-1">POS Overview</p>
             <h1 class="mb-1">Dashboard</h1>
             <p class="text-muted mb-0">Today is <?= date('F d, Y'); ?></p>
+            <?php if (!$isSuperAdmin && !empty($_SESSION['loggedInUser']['branch_name'])): ?>
+                <span class="badge bg-primary mt-1">
+                    <i class="fas fa-building me-1"></i>
+                    <?= htmlspecialchars($_SESSION['loggedInUser']['branch_name']); ?>
+                </span>
+            <?php endif; ?>
         </div>
 
         <div class="dashboard-actions">
@@ -84,7 +110,7 @@
                         <i class="fas fa-receipt"></i>
                     </div>
                     <p class="stat-label">Total Orders</p>
-                    <h2><?= getCount('orders'); ?></h2>
+                    <h2><?= $totalOrders; ?></h2>
                     <span class="stat-note">All recorded orders</span>
                 </div>
             </div>
@@ -181,10 +207,12 @@
                             <span><i class="fas fa-users"></i> Customers</span>
                             <strong><?= getCount('customers'); ?></strong>
                         </div>
+                        <?php if ($isSuperAdmin): ?>
                         <div class="summary-item">
                             <span><i class="fas fa-building"></i> Branches</span>
                             <strong><?= getCount('branches'); ?></strong>
                         </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -203,7 +231,7 @@
                         </div>
                         <div class="summary-item">
                             <span><i class="fas fa-user-group"></i> Total Users</span>
-                            <strong><?= getCount('users'); ?></strong>
+                            <strong><?= $totalUsers; ?></strong>
                         </div>
                     </div>
                 </div>

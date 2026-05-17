@@ -1,6 +1,6 @@
 <?php
     $page = substr($_SERVER['SCRIPT_NAME'], strrpos($_SERVER['SCRIPT_NAME'], "/")+1);
-    $isAdmin = isset($_SESSION['loggedInUser']['user_type']) && $_SESSION['loggedInUser']['user_type'] == 'admin';
+    $isAdmin = isset($_SESSION['loggedInUser']['user_type']) && ($_SESSION['loggedInUser']['user_type'] == 'admin' || $_SESSION['loggedInUser']['user_type'] == 'super_admin');
 ?>
 
 <div id="layoutSidenav_nav">
@@ -102,6 +102,12 @@
                     Backup & Restore
                 </a>
 
+                <a class="nav-link <?= $page == 'analytics.php' ? 'active':''; ?>" 
+                    href="<?= $baseUrl ?>analytics/analytics.php">
+                    <div class="sb-nav-link-icon"><i class="fas fa-chart-bar"></i></div>
+                    Analytics & Reports
+                </a>
+
                 <div class="sb-sidenav-menu-heading">Manage Users</div>
                 
                 <!-- Unified Users Management -->
@@ -111,7 +117,7 @@
                     aria-expanded="false" aria-controls="collapseUsers">
 
                     <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
-                    Users (Admin & Staff)
+                    Users
                     <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                 </a>
                 <div class="collapse <?= ($page == 'users.php') || ($page == 'CreateUser.php') || ($page == 'EditUser.php') ? 'show':''; ?>" id="collapseUsers" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
@@ -145,8 +151,19 @@
             <div class="small">Logged in as:</div>
             <?= $_SESSION['loggedInUser']['name']; ?>
             <?php if(isset($_SESSION['loggedInUser']['user_type'])): ?>
-                <span class="badge <?= $_SESSION['loggedInUser']['user_type'] == 'admin' ? 'bg-info' : 'bg-secondary' ?>">
-                    <?= ucfirst($_SESSION['loggedInUser']['user_type']); ?>
+                <?php
+                    $userType = $_SESSION['loggedInUser']['user_type'];
+                    $badgeClass = 'bg-secondary';
+                    $displayName = ucfirst(str_replace('_', ' ', $userType));
+                    
+                    if($userType == 'super_admin') {
+                        $badgeClass = 'bg-danger';
+                    } elseif($userType == 'admin') {
+                        $badgeClass = 'bg-info';
+                    }
+                ?>
+                <span class="badge <?= $badgeClass ?>">
+                    <?= $displayName; ?>
                 </span>
             <?php endif; ?>
         </div>

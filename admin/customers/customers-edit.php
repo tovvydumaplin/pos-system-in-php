@@ -40,14 +40,17 @@
                                 <label for="">Phone </label>
                                 <input type="number" name="phone" value="<?= $customer['data']['phone']; ?>" class="form-control" />
                             </div>
-                            <div class="col-md-6">
-                                <label>Status (UnChecked=Visible, Checked=Hidden)</label>
+
+                            <div class="col-md-3 mb-3">
+                                <label for="">Visibility Status</label>
                                 <br/>
-                                <input type="checkbox" name="status" <?= $customer['data']['status'] == true ? 'checked':''; ?> style="width:30px;height:30px";>
+                                <input type="checkbox" name="status" <?= $customer['data']['status'] == true ? 'checked':''; ?> style="width:30px;height:30px" />
+                                <small class="text-muted d-block mt-1">Check to hide customer</small>
                             </div>
-                            <div class="col-md-6 mb-3 text-end">
-                                <br/>
-                                <button type="submit" name="updateCustomer" class="btn btn-primary">Update</button>
+
+                            <div class="col-md-12 mb-3 text-end">
+                                <button type="submit" name="updateCustomer" class="btn btn-primary">Update Customer</button>
+                                <a href="customers.php" class="btn btn-outline-secondary">Cancel</a>
                             </div>
                         </div>
                         <?php

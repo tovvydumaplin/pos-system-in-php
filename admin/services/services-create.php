@@ -31,18 +31,20 @@
                         <input type="text" name="quantity" required class="form-control" />
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label for="">Image *</label>
+                        <label for="">Image</label>
                         <input type="file" name="image" class="form-control" />
                     </div>
 
-                    <div class="col-md-6">
-                        <label>Status (UnChecked=Visible, Checked=Hidden)</label>
+                    <div class="col-md-3 mb-3">
+                        <label for="">Visibility Status</label>
                         <br/>
-                        <input type="checkbox" name="status" style="width:30px;height:30px";>
+                        <input type="checkbox" name="status" style="width:30px;height:30px" />
+                        <small class="text-muted d-block mt-1">Check to hide service</small>
                     </div>
-                    <div class="col-md-6 mb-3 text-end">
-                        <br/>
-                        <button type="submit" name="saveService" class="btn btn-primary">Save</button>
+
+                    <div class="col-md-12 mb-3 text-end">
+                        <button type="submit" name="saveService" class="btn btn-primary">Save Service</button>
+                        <a href="services.php" class="btn btn-outline-secondary">Cancel</a>
                     </div>
                 </div>
 

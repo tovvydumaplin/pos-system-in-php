@@ -15,6 +15,7 @@
                 <div class="col-md-3">
                     <select id="userTypeFilter" class="form-select">
                         <option value="all">All Users</option>
+                        <option value="super_admin">Super Admins Only</option>
                         <option value="admin">Admins Only</option>
                         <option value="staff">Staff Only</option>
                     </select>
@@ -61,7 +62,9 @@
                             <td><?= $userItem['name'] ?></td>
                             <td>
                                 <?php
-                                    if($userItem['user_type'] == 'admin'){
+                                    if($userItem['user_type'] == 'super_admin'){
+                                        echo '<span class="badge bg-danger">Super Admin</span>';
+                                    } elseif($userItem['user_type'] == 'admin'){
                                         echo '<span class="badge bg-info">Admin</span>';
                                     } else {
                                         echo '<span class="badge bg-secondary">Staff</span>';

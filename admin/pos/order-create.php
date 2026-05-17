@@ -241,7 +241,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
 
-        <form action="orders-code.php" method="POST">
+        <form id="addCustomerForm">
 
             <div class="modal-header">
                 <h5 class="modal-title">Add New Customer</h5>
@@ -271,7 +271,7 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     Cancel
                 </button>
-                <button type="submit" name="saveCustomer" class="btn btn-primary saveCustomer">
+                <button type="button" name="saveCustomer" class="btn btn-primary saveCustomer">
                     Save Customer
                 </button>
             </div>

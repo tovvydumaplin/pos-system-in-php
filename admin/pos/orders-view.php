@@ -29,14 +29,18 @@
 
                     $trackingNo = validate($_GET['track']);
 
-                    $branchId = $_SESSION['loggedInUser']['branch_id'];
+                    $viewUserType     = $_SESSION['loggedInUser']['user_type'];
+                    $viewIsSuperAdmin = ($viewUserType === 'super_admin');
+                    $branchId         = $_SESSION['loggedInUser']['branch_id'];
+
+                    $branchClause = $viewIsSuperAdmin ? '' : "AND o.branch_id='" . (int)$branchId . "'";
 
                     $query = "
                     SELECT o.*, c.*
                     FROM orders o
                     JOIN customers c ON c.id=o.customer_id
                     WHERE o.tracking_no='$trackingNo'
-                    AND o.branch_id='$branchId'
+                    $branchClause
                     ORDER BY o.id DESC
                     ";
                                 
@@ -152,20 +156,20 @@
                                                                 ?>
                                                             </td>
                                                             <td width="15%" class="fw-bold text-center">
-                                                                <?= number_format($orderItemRow['orderItemPrice'],0) ?>
+                                                                ₱<?= number_format($orderItemRow['orderItemPrice'], 2) ?>
                                                             </td>
                                                             <td width="15%" class="fw-bold text-center">
                                                                 <?= $orderItemRow['orderItemQuantity']; ?>
                                                             </td>
                                                             <td width="15%" class="fw-bold text-center">
-                                                                <?= number_format($orderItemRow['orderItemPrice'] * $orderItemRow['orderItemQuantity'],0) ?>
+                                                                ₱<?= number_format($orderItemRow['orderItemPrice'] * $orderItemRow['orderItemQuantity'], 2) ?>
                                                             </td>
                                                         </tr>
                                                     <?php endforeach; ?>
 
                                                     <tr>
                                                         <td class="text-end fw-bold">Total Price: </td>
-                                                        <td colspan="3" class="text-end fw-bold">Rs: <?= number_format($orderItemRow['total_amount'],0); ?></td>
+                                                        <td colspan="3" class="text-end fw-bold">₱<?= number_format($orderItemRow['total_amount'], 2); ?></td>
                                                     </tr>
                                                 </tbody>
                                             </table>

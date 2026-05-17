@@ -155,6 +155,11 @@ $(document).ready(function () {
                             ).trigger('change');
                             swal(res.message, res.message, res.status_type);
                             $('#addCustomerModal').modal('hide');
+                            
+                            // Clear form fields
+                            $('#c_name').val('');
+                            $('#c_phone').val('');
+                            $('#c_email').val('');
                         }else if(res.status == 422){
                             swal(res.message, res.message, res.status_type);
                         }else{
