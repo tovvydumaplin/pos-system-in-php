@@ -12,71 +12,86 @@
             <?php alertMessage(); ?>
 
             <?php
-            $services = getAll('services');
-            if(!$services){
+            $services = mysqli_query($conn, "
+                SELECT s.*,
+                    GROUP_CONCAT(
+                        CONCAT(lc.item_name, ' x', si.quantity_required)
+                        ORDER BY lc.item_name ASC
+                        SEPARATOR '||'
+                    ) AS items_list
+                FROM services s
+                LEFT JOIN service_items si ON si.service_id = s.id
+                LEFT JOIN laundry_consumables lc ON lc.id = si.consumable_id
+                GROUP BY s.id
+                ORDER BY s.id DESC
+            ");
+
+            if (!$services) {
                 echo '<h4>Something Went Wrong!</h4>';
                 return false;
             }
 
-            if(mysqli_num_rows($services) > 0)
-            {
+            if (mysqli_num_rows($services) > 0):
             ?>
             <div class="table-responsive">
-                <table class="table table-striped table-bordered">
+                <table class="table table-striped table-bordered align-middle">
                     <thead>
                         <tr>
                             <th>ID</th>
                             <th>Image</th>
                             <th>Name</th>
+                            <th>Price</th>
+                            <th>Required Items</th>
                             <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach($services as $item) : ?>
+                        <?php foreach ($services as $item): ?>
                         <tr>
                             <td><?= $item['id'] ?></td>
                             <td>
-                                <?php if(!empty($item['image'])): ?>
-                                    <img src="../../<?= $item['image']; ?>" style="width:50px;height:50px;object-fit:cover;border-radius:4px;" alt="<?= $item['name']; ?>" />
+                                <?php if (!empty($item['image'])): ?>
+                                    <img src="../../<?= $item['image']; ?>"
+                                         style="width:48px;height:48px;object-fit:cover;border-radius:6px;"
+                                         alt="<?= $item['name']; ?>" />
                                 <?php else: ?>
-                                    <span class="text-muted">No image</span>
+                                    <span class="text-muted">—</span>
                                 <?php endif; ?>
                             </td>
-                            <td><?= $item['name'] ?></td>
+                            <td class="fw-semibold"><?= $item['name'] ?></td>
+                            <td>₱<?= number_format($item['price'], 2) ?></td>
                             <td>
-                                <?php
-                                    if($item['status'] == 1){
-                                        echo '<span class="badge bg-danger">Hidden</span>';
-                                    }else{
-                                        echo '<span class="badge bg-primary">Visible</span>';
-                                    }
-                                ?>
+                                <?php if (!empty($item['items_list'])): ?>
+                                    <?php foreach (explode('||', $item['items_list']) as $itm): ?>
+                                        <span class="badge bg-info text-dark me-1 mb-1"><?= htmlspecialchars($itm) ?></span>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <span class="text-muted small">No items defined</span>
+                                <?php endif; ?>
                             </td>
                             <td>
-                                <a href="services-edit.php?id=<?= $item['id']; ?>" class="btn btn-success btn-sm">Edit</a>
-                                <a 
-                                    href="services-delete.php?id=<?= $item['id']; ?>" 
-                                    class="btn btn-danger btn-sm"
-                                    onclick="return confirm('Are you sure you want to delete this image.')"
-                                >
-                                    Delete
-                                </a>
+                                <?php if ($item['status'] == 1): ?>
+                                    <span class="badge bg-danger">Hidden</span>
+                                <?php else: ?>
+                                    <span class="badge bg-success">Visible</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <a href="services-edit.php?id=<?= $item['id']; ?>" class="btn btn-warning btn-sm">Edit</a>
+                                <a href="services-delete.php?id=<?= $item['id']; ?>"
+                                   class="btn btn-danger btn-sm"
+                                   onclick="return confirm('Delete this service?')">Delete</a>
                             </td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
-            <?php
-            }
-            else
-            {
-                ?>
-                    <h4 class="mb-0">No Record Found</h4>
-                <?php
-            }
-            ?>
+            <?php else: ?>
+                <h4>No Record Found</h4>
+            <?php endif; ?>
+
         </div>
     </div>
 </div>

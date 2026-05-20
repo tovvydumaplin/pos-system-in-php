@@ -111,7 +111,12 @@ include('analytics-backend.php');
                     </div>
                     <p class="stat-label">Total Orders</p>
                     <h2><?= number_format($totalOrders); ?></h2>
-                    <span class="stat-note"><?= date('M d', strtotime($startDate)); ?> &ndash; <?= date('M d, Y', strtotime($endDate)); ?></span>
+                    <span class="stat-note">
+                        <?= date('M d', strtotime($startDate)); ?> &ndash; <?= date('M d, Y', strtotime($endDate)); ?>
+                        <?php if ($cancelledOrders > 0): ?>
+                            &bull; <span class="text-danger"><?= $cancelledOrders; ?> cancelled</span>
+                        <?php endif; ?>
+                    </span>
                 </div>
             </div>
         </div>

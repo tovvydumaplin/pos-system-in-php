@@ -314,6 +314,44 @@ if(isset($_POST['saveOrder']))
 
                 insert('order_items', $dataOrderItem);
 
+                // Deduct service_items consumables from stock
+                $svcItems = mysqli_query($conn, "
+                    SELECT si.consumable_id, si.quantity_required,
+                           lc.item_name, lc.quantity as stock_qty
+                    FROM service_items si
+                    JOIN laundry_consumables lc ON lc.id = si.consumable_id
+                    WHERE si.service_id = '{$item['id']}'
+                ");
+
+                if ($svcItems && mysqli_num_rows($svcItems) > 0) {
+                    foreach ($svcItems as $svcItem) {
+                        $deductQty = $svcItem['quantity_required'] * $item['quantity'];
+                        $newStock  = $svcItem['stock_qty'] - $deductQty;
+
+                        if ($newStock < 0) {
+                            jsonResponse(422, 'warning',
+                                'Not enough stock for ' . $svcItem['item_name'] .
+                                ' (needs ' . $deductQty . ', has ' . $svcItem['stock_qty'] . ')'
+                            );
+                        }
+
+                        mysqli_query($conn, "
+                            UPDATE laundry_consumables
+                            SET quantity = '$newStock'
+                            WHERE id = '{$svcItem['consumable_id']}'
+                        ");
+
+                        insert('stock_movement', [
+                            'consumable_id' => $svcItem['consumable_id'],
+                            'movement_type' => 'OUT',
+                            'quantity'      => $deductQty,
+                            'reference_no'  => $trackingNo,
+                            'remarks'       => 'Used in service: ' . $item['name'],
+                            'created_by'    => $order_placed_by_id,
+                        ]);
+                    }
+                }
+
             }
 
             // =========================

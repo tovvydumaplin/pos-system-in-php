@@ -46,16 +46,19 @@
     $staffCount  = dashboardCountWhere('users', "user_type='staff'" . $userBranchWhere);
     $totalUsers  = dashboardCountWhere('users', "1=1" . $userBranchWhere);
 
-    $todayOrders = dashboardCountWhere('orders', "order_date='$todayDate' AND $orderBranchWhere");
-    $totalOrders = dashboardCountWhere('orders', $orderBranchWhere);
-    $todaySales  = dashboardOrderTotal("order_date='$todayDate' AND $orderBranchWhere");
-    $totalSales  = dashboardOrderTotal($orderBranchWhere);
+    $notCancelled = "order_status != 'cancelled'";
+
+    $todayOrders    = dashboardCountWhere('orders', "order_date='$todayDate' AND $notCancelled AND $orderBranchWhere");
+    $totalOrders    = dashboardCountWhere('orders', "$notCancelled AND $orderBranchWhere");
+    $cancelledOrders = dashboardCountWhere('orders', "order_status='cancelled' AND $orderBranchWhere");
+    $todaySales  = dashboardOrderTotal("order_date='$todayDate' AND $notCancelled AND $orderBranchWhere");
+    $totalSales  = dashboardOrderTotal("$notCancelled AND $orderBranchWhere");
 
     $recentOrdersSql = "
         SELECT o.*, c.name, c.phone
         FROM orders o
         LEFT JOIN customers c ON c.id = o.customer_id
-        WHERE $orderBranchWhere
+        WHERE $notCancelled AND $orderBranchWhere
         ORDER BY o.id DESC
         LIMIT 5
     ";
@@ -111,7 +114,13 @@
                     </div>
                     <p class="stat-label">Total Orders</p>
                     <h2><?= $totalOrders; ?></h2>
-                    <span class="stat-note">All recorded orders</span>
+                    <span class="stat-note">
+                        <?php if ($cancelledOrders > 0): ?>
+                            <span class="text-danger"><?= $cancelledOrders; ?> cancelled</span>
+                        <?php else: ?>
+                            All recorded orders
+                        <?php endif; ?>
+                    </span>
                 </div>
             </div>
         </div>
@@ -195,10 +204,6 @@
                 <div class="card-header">Business Records</div>
                 <div class="card-body">
                     <div class="summary-list">
-                        <div class="summary-item">
-                            <span><i class="fas fa-tags"></i> Categories</span>
-                            <strong><?= getCount('categories'); ?></strong>
-                        </div>
                         <div class="summary-item">
                             <span><i class="fas fa-shirt"></i> Services</span>
                             <strong><?= getCount('services'); ?></strong>

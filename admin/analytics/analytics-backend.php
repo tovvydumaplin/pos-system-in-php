@@ -24,8 +24,8 @@ if($isSuperAdmin && isset($_GET['branch_id']) && !empty($_GET['branch_id'])) {
 function buildWhereClause($includeDate = true) {
     global $isSuperAdmin, $isAdmin, $userBranchId, $selectedBranch, $startDate, $endDate;
     
-    $where = "1=1";
-    
+    $where = "o.order_status != 'cancelled'";
+
     // Branch filtering based on role
     if($isSuperAdmin) {
         // Super admin can filter by branch or see all
@@ -60,6 +60,31 @@ $totalSales = mysqli_fetch_assoc($totalSalesResult)['total'];
 $totalOrdersQuery = "SELECT COUNT(*) as total FROM orders o WHERE " . buildWhereClause();
 $totalOrdersResult = mysqli_query($conn, $totalOrdersQuery);
 $totalOrders = mysqli_fetch_assoc($totalOrdersResult)['total'];
+
+// Cancelled Orders (within date range and branch scope, excluding the status filter)
+function buildCancelledWhereClause() {
+    global $isSuperAdmin, $isAdmin, $userBranchId, $selectedBranch, $startDate, $endDate;
+
+    $where = "o.order_status = 'cancelled'";
+
+    if($isSuperAdmin) {
+        if(!empty($selectedBranch)) {
+            $where .= " AND o.branch_id = '$selectedBranch'";
+        }
+    } elseif($isAdmin) {
+        if(!empty($userBranchId)) {
+            $where .= " AND o.branch_id = '$userBranchId'";
+        }
+    }
+
+    $where .= " AND o.order_date BETWEEN '$startDate' AND '$endDate'";
+
+    return $where;
+}
+
+$cancelledOrdersQuery = "SELECT COUNT(*) as total FROM orders o WHERE " . buildCancelledWhereClause();
+$cancelledOrdersResult = mysqli_query($conn, $cancelledOrdersQuery);
+$cancelledOrders = mysqli_fetch_assoc($cancelledOrdersResult)['total'];
 
 // Average Order Value
 $averageOrderValue = $totalOrders > 0 ? $totalSales / $totalOrders : 0;

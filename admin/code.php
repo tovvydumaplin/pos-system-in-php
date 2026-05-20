@@ -347,12 +347,11 @@ if(isset($_POST['updateCategory']))
 
 if(isset($_POST['saveService']))
 {
-    $name = validate($_POST['name']);
+    $name        = validate($_POST['name']);
     $description = validate($_POST['description']);
-
-    $price = validate($_POST['price']);
-    $quantity = validate($_POST['quantity']);
-    $status = isset($_POST['status']) == true ? 1:0;
+    $price       = validate($_POST['price']);
+    $quantity    = validate($_POST['quantity']);
+    $status      = isset($_POST['status']) == true ? 1:0;
 
     if($_FILES['image']['size'] > 0)
     {
@@ -371,17 +370,34 @@ if(isset($_POST['saveService']))
     }
 
     $data = [
-        'name' => $name,
+        'name'        => $name,
         'description' => $description,
-        'price' => $price,
-        'quantity' => $quantity,
-        'image' => $finalImage,
-        'status' => $status
+        'price'       => $price,
+        'quantity'    => $quantity,
+        'image'       => $finalImage,
+        'status'      => $status
     ];
 
     $result = insert('services',$data);
 
     if($result){
+        $newServiceId = mysqli_insert_id($conn);
+
+        if (!empty($_POST['items']) && is_array($_POST['items'])) {
+            foreach ($_POST['items'] as $item) {
+                $consumableId = (int) $item['consumable_id'];
+                $qty = (float) $item['quantity'];
+                if ($consumableId > 0 && $qty > 0) {
+                    $itemData = [
+                        'service_id'        => $newServiceId,
+                        'consumable_id'     => $consumableId,
+                        'quantity_required' => $qty,
+                    ];
+                    insert('service_items', $itemData);
+                }
+            }
+        }
+
         redirect('services/services.php','Service Created Successfully!');
     }else{
         redirect('services/services-create.php','Something Went Wrong!');
@@ -397,12 +413,11 @@ if(isset($_POST['updateService']))
         redirect('services/services.php','No such service found');
     }
 
-    $name = validate($_POST['name']);
+    $name        = validate($_POST['name']);
     $description = validate($_POST['description']);
-
-    $price = validate($_POST['price']);
-    $quantity = validate($_POST['quantity']);
-    $status = isset($_POST['status']) == true ? 1:0;
+    $price       = validate($_POST['price']);
+    $quantity    = validate($_POST['quantity']);
+    $status      = isset($_POST['status']) == true ? 1:0;
 
     if($_FILES['image']['size'] > 0)
     {
@@ -426,17 +441,35 @@ if(isset($_POST['updateService']))
     }
 
     $data = [
-        'name' => $name,
+        'name'        => $name,
         'description' => $description,
-        'price' => $price,
-        'quantity' => $quantity,
-        'image' => $finalImage,
-        'status' => $status
+        'price'       => $price,
+        'quantity'    => $quantity,
+        'image'       => $finalImage,
+        'status'      => $status
     ];
 
     $result = update('services', $service_id, $data);
 
     if($result){
+        // Replace service items: delete existing then re-insert
+        mysqli_query($conn, "DELETE FROM service_items WHERE service_id='$service_id'");
+
+        if (!empty($_POST['items']) && is_array($_POST['items'])) {
+            foreach ($_POST['items'] as $item) {
+                $consumableId = (int) $item['consumable_id'];
+                $qty = (float) $item['quantity'];
+                if ($consumableId > 0 && $qty > 0) {
+                    $itemData = [
+                        'service_id'        => $service_id,
+                        'consumable_id'     => $consumableId,
+                        'quantity_required' => $qty,
+                    ];
+                    insert('service_items', $itemData);
+                }
+            }
+        }
+
         redirect('services/services-edit.php?id='.$service_id,'Service Updated Successfully!');
     }else{
         redirect('services/services-edit.php?id='.$service_id,'Something Went Wrong!');
