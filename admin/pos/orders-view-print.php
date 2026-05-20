@@ -4,7 +4,7 @@
     <div class="card mt-4 shadow-sm">
         <div class="card-header">
             <h4 class="mb-0">Print Order
-                <a href="orders.php" class="btn btn-danger btn-sm float-end">Back</a>
+                <a href="orders.php" class="btn btn-success btn-sm float-end">Back</a>
             </h4>
         </div>
         <div class="card-body">
@@ -28,9 +28,16 @@
                         $branchId = $_SESSION['loggedInUser']['branch_id'];
 
                         $orderQuery = "
-                        SELECT o.*, c.*
+                        SELECT 
+                            o.*, 
+                            c.*,
+                            b.branch_name,
+                            b.address as branch_address
                         FROM orders o
-                        JOIN customers c ON c.id=o.customer_id
+                        JOIN customers c 
+                            ON c.id=o.customer_id
+                        LEFT JOIN branches b
+                            ON b.id=o.branch_id
                         WHERE o.tracking_no='$trackingNo'
                         AND o.branch_id='$branchId'
                         LIMIT 1
@@ -52,7 +59,9 @@
                                     <tr>
                                         <td style="text-align: center;" colspan="2">
                                             <h4 style="font-size: 23px; line-height: 30px; margin:2px; padding: 0;">TipidSulit Laundromat</h4>
-                                            <p style="font-size: 16px; line-height: 24px; margin:2px; padding: 0;">70 G. Marcelo, Maysan, Valenzuela City, Metro Manila, 1440</p>
+                                            <p style="font-size: 14px; line-height: 20px; margin:0px; padding: 0;">
+                                             <?= $orderDataRow['branch_address']; ?>
+                                            </p>
                                         </td>
                                     </tr>
                                     <tr>
@@ -155,8 +164,15 @@
             </div>
 
             <div class="mt-4 text-end">
-                <button class="btn btn-info px-4 mx-1" onclick="printMyBillingArea()">Print</button>
-                <button class="btn btn-primary px-4 mx-1" onclick="downloadPDF('<?= $orderDataRow['invoice_no']; ?>')">Download PDF</button>
+                <button class="btn btn-info px-4 mx-1" onclick="printMyBillingArea()">
+                    Print
+                </button>
+
+                <button class="btn btn-primary px-4 mx-1"
+                        onclick="downloadPDF('<?= $orderDataRow['invoice_no']; ?>')">
+                    Download PDF
+                </button>
+
             </div>
         </div>
     </div>

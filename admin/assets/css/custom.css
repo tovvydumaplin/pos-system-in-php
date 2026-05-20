@@ -590,3 +590,27 @@ footer a:hover {
         padding: 0.75rem;
     }
 }
+.bg-success-subtle{
+    background-color: #d1e7dd !important;
+}
+
+.bg-danger-subtle{
+    background-color: #f8d7da !important;
+}
+
+.bg-secondary-subtle{
+    background-color: #e2e3e5 !important;
+}
+
+.text-success{
+    color: #198754 !important;
+}
+
+.text-danger{
+    color: #dc3545 !important;
+}
+
+.text-secondary{
+    color: #6c757d !important;
+}
+

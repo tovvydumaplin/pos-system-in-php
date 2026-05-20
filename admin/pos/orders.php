@@ -172,7 +172,25 @@ $isSuperAdmin = ($userType == 'super_admin');
                         </td>
                         <?php endif; ?>
                         <td><?= date('d M, Y', strtotime($orderItem['order_date'])); ?></td>
-                        <td><?= $orderItem['order_status']; ?></td>
+                        <?php
+                        $status = strtolower($orderItem['order_status']);
+
+                        if($status == 'cancelled'){
+                            $statusClass = 'bg-danger-subtle text-danger';
+                        }
+                        elseif($status == 'booked'){
+                            $statusClass = 'bg-success-subtle text-success';
+                        }
+                        else{
+                            $statusClass = 'bg-secondary-subtle text-secondary';
+                        }
+                        ?>
+
+                        <td>
+                            <span class="badge <?= $statusClass ?> px-3 py-2">
+                                <?= ucfirst($orderItem['order_status']); ?>
+                            </span>
+                        </td>
                         <td><?= $orderItem['payment_mode']; ?></td>
                         <td>
                             <a href="orders-view.php?track=<?= $orderItem['tracking_no']; ?>" 

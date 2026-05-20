@@ -389,4 +389,40 @@ if(isset($_POST['saveOrder']))
         jsonResponse(404, 'warning', 'No Customer Found!');
     }
 }
+
+/*
+|--------------------------------------------------------------------------
+| CANCEL ORDER
+|--------------------------------------------------------------------------
+*/
+if(isset($_GET['cancel']))
+{
+    $trackingNo = validate($_GET['cancel']);
+
+    $userType = $_SESSION['loggedInUser']['user_type'];
+    $branchId = $_SESSION['loggedInUser']['branch_id'];
+
+    $branchClause = ($userType == 'super_admin')
+        ? ""
+        : "AND branch_id='$branchId'";
+
+    $query = mysqli_query($conn,"
+        UPDATE orders
+        SET order_status='cancelled'
+        WHERE tracking_no='$trackingNo'
+        $branchClause
+    ");
+
+    if($query){
+        redirect(
+            "orders-view.php?track=".$trackingNo,
+            "Order cancelled successfully"
+        );
+    }else{
+        redirect(
+            "orders-view.php?track=".$trackingNo,
+            "Something went wrong"
+        );
+    }
+}
 ?>
