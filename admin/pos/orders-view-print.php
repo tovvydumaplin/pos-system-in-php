@@ -88,9 +88,33 @@
                             return false;
                         }
 
-                        $orderItemQuery = "SELECT oi.quantity as orderItemQuantity, oi.price as orderItemPrice, o.*, oi.*, s.* 
-                            FROM orders o, order_items oi, services s 
-                            WHERE oi.order_id=o.id AND s.id=oi.service_id AND o.tracking_no='$trackingNo' ";
+                        $orderItemQuery = "
+                        SELECT
+                            oi.quantity as orderItemQuantity,
+                            oi.price as orderItemPrice,
+
+                            o.total_amount,
+                            o.payment_mode,
+
+                            s.name as service_name,
+                            lc.item_name as consumable_name,
+
+                            oi.service_id,
+                            oi.consumable_id
+
+                        FROM orders o
+
+                        JOIN order_items oi
+                            ON oi.order_id = o.id
+
+                        LEFT JOIN services s
+                            ON s.id = oi.service_id
+
+                        LEFT JOIN laundry_consumables lc
+                            ON lc.id = oi.consumable_id
+
+                        WHERE o.tracking_no='$trackingNo'
+                        ";
 
                         $orderItemQueryRes = mysqli_query($conn, $orderItemQuery);
                         if($orderItemQueryRes)
@@ -116,7 +140,7 @@
                                                 ?>
                                                 <tr>
                                                     <td style="border-bottom: 1px solid #ccc;"><?= $i++; ?></td>
-                                                    <td style="border-bottom: 1px solid #ccc;"><?= $row['name']; ?></td>
+                                                    <td style="border-bottom: 1px solid #ccc;"><?= $row['service_name'] ?? $row['consumable_name']; ?></td>
                                                     <td style="border-bottom: 1px solid #ccc;"><?= number_format($row['orderItemPrice'],0) ?></td>
                                                     <td style="border-bottom: 1px solid #ccc;"><?= $row['orderItemQuantity'] ?></td>
                                                     <td style="border-bottom: 1px solid #ccc;" class="fw-bold">

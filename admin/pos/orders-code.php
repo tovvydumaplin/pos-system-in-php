@@ -407,7 +407,8 @@ if(isset($_POST['saveOrder']))
                         'quantity' => $deductQty,
                         'reference_no' => $trackingNo,
                         'remarks' => 'Used in customer order',
-                        'created_by' => $order_placed_by_id
+                        'created_by' => $order_placed_by_id,
+                        'branch_id' => $branch_id
                     ];
 
                     insert('stock_movement', $movementData);
@@ -439,28 +440,145 @@ if(isset($_GET['cancel']))
 
     $userType = $_SESSION['loggedInUser']['user_type'];
     $branchId = $_SESSION['loggedInUser']['branch_id'];
+    $userId   = $_SESSION['loggedInUser']['user_id'];
 
     $branchClause = ($userType == 'super_admin')
         ? ""
         : "AND branch_id='$branchId'";
 
-    $query = mysqli_query($conn,"
-        UPDATE orders
-        SET order_status='cancelled'
+    // prevent duplicate restoring
+    $checkOrder = mysqli_query($conn,"
+        SELECT *
+        FROM orders
         WHERE tracking_no='$trackingNo'
         $branchClause
+        LIMIT 1
     ");
 
-    if($query){
+    if(mysqli_num_rows($checkOrder) == 0){
+        redirect('orders.php','Order not found');
+    }
+
+    $orderData = mysqli_fetch_assoc($checkOrder);
+
+    if(strtolower($orderData['order_status']) == 'cancelled'){
         redirect(
             "orders-view.php?track=".$trackingNo,
-            "Order cancelled successfully"
-        );
-    }else{
-        redirect(
-            "orders-view.php?track=".$trackingNo,
-            "Something went wrong"
+            "Order already cancelled"
         );
     }
+
+    $orderId = $orderData['id'];
+
+    // get all consumables from this order
+    $orderItems = mysqli_query($conn,"
+        SELECT *
+        FROM order_items
+        WHERE order_id='$orderId'
+        AND consumable_id IS NOT NULL
+    ");
+
+    foreach($orderItems as $item){
+
+        $consumableId = $item['consumable_id'];
+        $returnQty = $item['quantity'];
+
+        // current stock
+        $stockQuery = mysqli_query($conn,"
+            SELECT *
+            FROM laundry_consumables
+            WHERE id='$consumableId'
+            LIMIT 1
+        ");
+
+        if($stockQuery && mysqli_num_rows($stockQuery)>0){
+
+            $stock = mysqli_fetch_assoc($stockQuery);
+
+            $newQty = $stock['quantity'] + $returnQty;
+
+            // return stock
+            mysqli_query($conn,"
+                UPDATE laundry_consumables
+                SET quantity='$newQty'
+                WHERE id='$consumableId'
+            ");
+
+            // stock movement log
+            $movementData = [
+                'consumable_id' => $consumableId,
+                'movement_type' => 'IN',
+                'quantity' => $returnQty,
+                'reference_no' => $trackingNo,
+                'remarks' => 'Returned from cancelled order',
+                'created_by' => $userId,
+                'branch_id' => $orderData['branch_id']
+            ];
+
+            insert('stock_movement',$movementData);
+        }
+    }
+
+    // update order 
+    mysqli_query($conn,"
+        UPDATE orders
+        SET order_status='cancelled'
+        WHERE id='$orderId'
+    ");
+
+    redirect(
+        "orders-view.php?track=".$trackingNo,
+        "Order cancelled and stock restored"
+    );
+}
+
+/*
+|--------------------------------------------------------------------------
+| RELEASE ORDER
+|--------------------------------------------------------------------------
+*/
+if(isset($_GET['release']))
+{
+    $trackingNo = validate($_GET['release']);
+
+    $userType = $_SESSION['loggedInUser']['user_type'];
+    $branchId = $_SESSION['loggedInUser']['branch_id'];
+
+    // this one is for super admin
+    $branchClause = ($userType == 'super_admin')
+        ? ""
+        : "AND branch_id='$branchId'";
+
+    $checkOrder = mysqli_query($conn,"
+        SELECT *
+        FROM orders
+        WHERE tracking_no='$trackingNo'
+        $branchClause
+        LIMIT 1
+    ");
+
+    if(mysqli_num_rows($checkOrder)==0){
+        redirect('orders.php','Order not found');
+    }
+
+    $orderData = mysqli_fetch_assoc($checkOrder);
+
+    if(strtolower($orderData['order_status']) != 'booked'){
+        redirect(
+            "orders-view.php?track=".$trackingNo,
+            "Order already processed"
+        );
+    }
+
+    mysqli_query($conn,"
+        UPDATE orders
+        SET order_status='released'
+        WHERE id='".$orderData['id']."'
+    ");
+
+    redirect(
+        "orders-view.php?track=".$trackingNo,
+        "Order marked as released"
+    );
 }
 ?>

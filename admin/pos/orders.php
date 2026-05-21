@@ -179,6 +179,9 @@ $isSuperAdmin = ($userType == 'super_admin');
                             $statusClass = 'bg-danger-subtle text-danger';
                         }
                         elseif($status == 'booked'){
+                            $statusClass = 'bg-info-subtle text-info';
+                        }
+                        elseif($status == 'released'){
                             $statusClass = 'bg-success-subtle text-success';
                         }
                         else{

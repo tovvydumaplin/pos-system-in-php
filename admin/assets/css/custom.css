@@ -590,8 +590,16 @@ footer a:hover {
         padding: 0.75rem;
     }
 }
+
+.btn-released{
+    background-color: #28a745 !important;
+    color: white !important
+}
+.bg-info-subtle{
+    background-color: #d1e1e7 !important;
+}
 .bg-success-subtle{
-    background-color: #d1e7dd !important;
+    background-color: #b9ffc9 !important;
 }
 
 .bg-danger-subtle{
@@ -602,8 +610,8 @@ footer a:hover {
     background-color: #e2e3e5 !important;
 }
 
-.text-success{
-    color: #198754 !important;
+.text-info{
+    color: #0c5e7c !important;
 }
 
 .text-danger{

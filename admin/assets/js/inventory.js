@@ -96,4 +96,66 @@ $(document).ready(function(){
         });
 
     });
+$(document).on('click','.editItemBtn',function(e){
+
+    e.preventDefault();
+
+    $('#edit_item_id')
+        .val($(this).data('id'));
+
+    $('#edit_item_name')
+        .val($(this).data('name'));
+
+    $('#edit_price')
+        .val($(this).data('price'));
+
+    $('#edit_branch_name')
+        .val($(this).data('branch'));
+
+    $('#editItemModal').modal('show');
+
+});
+
+
+$('#editItemForm').submit(function(e){
+
+    e.preventDefault();
+
+    let formData=$(this).serialize();
+
+    $.ajax({
+
+        url:'inventory-backend.php',
+
+        method:'POST',
+
+        data:formData+'&updateItem=1',
+
+        success:function(response){
+
+            let res=JSON.parse(response);
+
+            if(res.status==200){
+
+                bootstrap.Modal
+                .getInstance(
+                    document.getElementById(
+                        'editItemModal'
+                    )
+                )
+                .hide();
+
+                loadInventoryTable();
+
+            }else{
+
+                alert(res.message);
+
+            }
+
+        }
+
+    });
+
+});
 });

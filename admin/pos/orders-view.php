@@ -70,15 +70,23 @@
                             ?>
                             <div class="d-flex justify-content-end gap-2 mb-3">
 
-                                <?php if(strtolower($orderData['order_status']) != 'cancelled'): ?>
+                                <?php if(strtolower($orderData['order_status']) == 'booked'): ?>
+
+                                    <a href="orders-code.php?release=<?= $orderData['tracking_no']; ?>" 
+                                    class="btn btn-released btn-sm"
+                                    onclick="return confirm('Mark this order as released?')">
+                                        Mark as Released
+                                    </a>
+
                                     <a href="orders-code.php?cancel=<?= $orderData['tracking_no']; ?>" 
-                                    class="btn btn-danger btn-sm"
+                                    class="btn btn-outline-danger btn-sm"
                                     onclick="return confirm('Are you sure you want to cancel this order?')">
                                         Cancel Order
                                     </a>
+
                                 <?php endif; ?>
 
-                            </div>       
+                            </div>    
                             <div class="card card-body shadow border-1 mb-4">
                                 <div class="row">
                                     <div class="col-md-6">

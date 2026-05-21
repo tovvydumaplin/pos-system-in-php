@@ -85,9 +85,14 @@ if($result && mysqli_num_rows($result) > 0){
                 </li>
 
                 <li>
-                    <a 
-                        href="inventory-edit.php?id=<?= $item['id']; ?>" 
-                        class="dropdown-item"
+                    <a
+                        href="#"
+                        class="dropdown-item editItemBtn"
+
+                        data-id="<?= $item['id']; ?>"
+                        data-name="<?= $item['item_name']; ?>"
+                        data-price="<?= $item['price']; ?>"
+                        data-branch="<?= $item['branch_name']; ?>"
                     >
                         <i class="bi bi-pencil-square me-2"></i>
                         Edit

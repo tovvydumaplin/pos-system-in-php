@@ -235,5 +235,88 @@
         </div>
     </div>
 </div>
+<!-- Edit Item Modal -->
+<div class="modal fade" id="editItemModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <form id="editItemForm">
+
+                <input type="hidden" name="item_id" id="edit_item_id">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Edit Item
+                    </h5>
+
+                    <button 
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                    </button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="mb-3">
+                        <label>Item Name</label>
+
+                        <input
+                            type="text"
+                            name="item_name"
+                            id="edit_item_name"
+                            class="form-control"
+                            required
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Branch</label>
+
+                        <input
+                            type="text"
+                            id="edit_branch_name"
+                            class="form-control"
+                            readonly
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Price</label>
+
+                        <input
+                            type="number"
+                            name="price"
+                            id="edit_price"
+                            step="0.01"
+                            class="form-control"
+                            required
+                        >
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary">
+                        Update Item
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
 <?php include('../includes/footer.php'); ?>
 <script src="<?= $baseUrl ?>assets/js/inventory.js"></script>
