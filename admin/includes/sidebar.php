@@ -2,6 +2,34 @@
     $page = substr($_SERVER['SCRIPT_NAME'], strrpos($_SERVER['SCRIPT_NAME'], "/")+1);
     $isAdmin = isset($_SESSION['loggedInUser']['user_type']) && ($_SESSION['loggedInUser']['user_type'] == 'admin' || $_SESSION['loggedInUser']['user_type'] == 'super_admin');
 ?>
+<style>
+    /* Section headings */
+    .sb-sidenav-dark .sb-sidenav-menu-heading {
+        color: #94a3b8;
+        font-size: 0.65rem;
+        letter-spacing: .08em;
+    }
+
+    /* Icon colors per link */
+    .sb-sidenav-dark .nav-link .sb-nav-link-icon { transition: color .15s; }
+
+    .nav-icon-cyan   { color: #38bdf8 !important; }
+    .nav-icon-amber  { color: #fbbf24 !important; }
+    .nav-icon-green  { color: #4ade80 !important; }
+    .nav-icon-orange { color: #fb923c !important; }
+    .nav-icon-blue   { color: #60a5fa !important; }
+    .nav-icon-violet { color: #a78bfa !important; }
+    .nav-icon-emerald{ color: #34d399 !important; }
+    .nav-icon-pink   { color: #f472b6 !important; }
+    .nav-icon-indigo { color: #818cf8 !important; }
+    .nav-icon-slate  { color: #94a3b8 !important; }
+
+    /* Active link gets a left accent */
+    .sb-sidenav-dark .nav-link.active {
+        border-left: 3px solid #38bdf8;
+        padding-left: calc(1rem - 3px);
+    }
+</style>
 
 <div id="layoutSidenav_nav">
     <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
@@ -10,17 +38,17 @@
                 <div class="sb-sidenav-menu-heading">Core</div>
 
                 <a class="nav-link <?= $page == 'index.php' ? 'active':''; ?>" href="<?= $baseUrl ?>index.php">
-                    <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                    Dashboard 
+                    <div class="sb-nav-link-icon nav-icon-cyan"><i class="fas fa-tachometer-alt"></i></div>
+                    Dashboard
                 </a>
 
                 <a class="nav-link <?= $page == 'order-create.php' ? 'active':''; ?>"
                     href="<?= $baseUrl ?>pos/order-create.php">
-                    <div class="sb-nav-link-icon"><i class="fas fa-bell"></i></div>
+                    <div class="sb-nav-link-icon nav-icon-amber"><i class="fas fa-bell"></i></div>
                     Create Order
                 </a>
                 <a class="nav-link <?= $page == 'orders.php' ? 'active':''; ?>" href="<?= $baseUrl ?>pos/orders.php">
-                    <div class="sb-nav-link-icon"><i class="fas fa-list"></i></div>
+                    <div class="sb-nav-link-icon nav-icon-green"><i class="fas fa-list"></i></div>
                     Orders
                 </a>
                 <?php if($isAdmin): ?>
@@ -29,7 +57,7 @@
 <a class="nav-link <?= ($page == 'services-create.php') || ($page == 'services.php') ? 'collapse active':'collapsed'; ?>" href="#" 
                     data-bs-toggle="collapse" 
                     data-bs-target="#collapseService" aria-expanded="false" aria-controls="collapseService">
-                    <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
+                    <div class="sb-nav-link-icon nav-icon-orange"><i class="fas fa-columns"></i></div>
                     Services
                     <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                 </a>
@@ -48,7 +76,7 @@
                     aria-expanded="false" 
                     aria-controls="collapseInventory">
 
-                    <div class="sb-nav-link-icon"><i class="fas fa-box"></i></div>
+                    <div class="sb-nav-link-icon nav-icon-blue"><i class="fas fa-box"></i></div>
                     Inventory
                     <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                 </a>
@@ -76,19 +104,19 @@
 
                 <a class="nav-link <?= $page == 'branches.php' ? 'active':''; ?>" 
                     href="<?= $baseUrl ?>branches/branches.php">
-                    <div class="sb-nav-link-icon"><i class="fas fa-building"></i></div>
+                    <div class="sb-nav-link-icon nav-icon-violet"><i class="fas fa-building"></i></div>
                     Manage Branches
                 </a>
 
                 <a class="nav-link <?= $page == 'backup-restore.php' ? 'active':''; ?>" 
                     href="<?= $baseUrl ?>backup-restore/backup-restore.php">
-                    <div class="sb-nav-link-icon"><i class="fas fa-database"></i></div>
+                    <div class="sb-nav-link-icon nav-icon-slate"><i class="fas fa-database"></i></div>
                     Backup & Restore
                 </a>
 
                 <a class="nav-link <?= $page == 'analytics.php' ? 'active':''; ?>" 
                     href="<?= $baseUrl ?>analytics/analytics.php">
-                    <div class="sb-nav-link-icon"><i class="fas fa-chart-bar"></i></div>
+                    <div class="sb-nav-link-icon nav-icon-emerald"><i class="fas fa-chart-bar"></i></div>
                     Analytics & Reports
                 </a>
 
@@ -100,7 +128,7 @@
                     data-bs-target="#collapseUsers" 
                     aria-expanded="false" aria-controls="collapseUsers">
 
-                    <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
+                    <div class="sb-nav-link-icon nav-icon-pink"><i class="fas fa-users"></i></div>
                     Users
                     <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                 </a>
@@ -116,7 +144,7 @@
                     data-bs-target="#collapseCustomer" 
                     aria-expanded="false" aria-controls="collapseCustomer">
 
-                    <div class="sb-nav-link-icon"><i class="fas fa-user-friends"></i></div>
+                    <div class="sb-nav-link-icon nav-icon-indigo"><i class="fas fa-user-friends"></i></div>
                     Customers
                     <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                 </a>
