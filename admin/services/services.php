@@ -12,19 +12,44 @@
             <?php alertMessage(); ?>
 
             <?php
-            $services = mysqli_query($conn, "
-                SELECT s.*,
-                    GROUP_CONCAT(
-                        CONCAT(lc.item_name, ' x', si.quantity_required)
-                        ORDER BY lc.item_name ASC
-                        SEPARATOR '||'
-                    ) AS items_list
-                FROM services s
-                LEFT JOIN service_items si ON si.service_id = s.id
-                LEFT JOIN laundry_consumables lc ON lc.id = si.consumable_id
-                GROUP BY s.id
-                ORDER BY s.id DESC
-            ");
+            // Filter services by branch unless super_admin
+            $isSuperAdmin = isset($_SESSION['loggedInUser']['user_type']) && $_SESSION['loggedInUser']['user_type'] == 'super_admin';
+            $userBranchId = $_SESSION['loggedInUser']['branch_id'] ?? null;
+            
+            if ($isSuperAdmin) {
+                $services = mysqli_query($conn, "
+                    SELECT s.*,
+                        b.branch_name,
+                        GROUP_CONCAT(
+                            CONCAT(lc.item_name, ' x', si.quantity_required)
+                            ORDER BY lc.item_name ASC
+                            SEPARATOR '||'
+                        ) AS items_list
+                    FROM services s
+                    LEFT JOIN branches b ON b.id = s.branch_id
+                    LEFT JOIN service_items si ON si.service_id = s.id
+                    LEFT JOIN laundry_consumables lc ON lc.id = si.consumable_id
+                    GROUP BY s.id
+                    ORDER BY s.id DESC
+                ");
+            } else {
+                $services = mysqli_query($conn, "
+                    SELECT s.*,
+                        b.branch_name,
+                        GROUP_CONCAT(
+                            CONCAT(lc.item_name, ' x', si.quantity_required)
+                            ORDER BY lc.item_name ASC
+                            SEPARATOR '||'
+                        ) AS items_list
+                    FROM services s
+                    LEFT JOIN branches b ON b.id = s.branch_id
+                    LEFT JOIN service_items si ON si.service_id = s.id
+                    LEFT JOIN laundry_consumables lc ON lc.id = si.consumable_id
+                    WHERE s.branch_id = '$userBranchId'
+                    GROUP BY s.id
+                    ORDER BY s.id DESC
+                ");
+            }
 
             if (!$services) {
                 echo '<h4>Something Went Wrong!</h4>';
@@ -41,6 +66,7 @@
                             <th>Image</th>
                             <th>Name</th>
                             <th>Price</th>
+                            <th>Branch</th>
                             <th>Required Items</th>
                             <th>Status</th>
                             <th>Action</th>
@@ -61,6 +87,7 @@
                             </td>
                             <td class="fw-semibold"><?= $item['name'] ?></td>
                             <td>₱<?= number_format($item['price'], 2) ?></td>
+                            <td><?= $item['branch_name'] ?? '<span class="text-muted">—</span>' ?></td>
                             <td>
                                 <?php if (!empty($item['items_list'])): ?>
                                     <?php foreach (explode('||', $item['items_list']) as $itm): ?>

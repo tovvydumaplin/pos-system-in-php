@@ -1,6 +1,6 @@
 <?php
 
-require '../config/function.php';
+require '../../config/function.php';
 
 $paraRestultId = checkParamId('id');
 if(is_numeric($paraRestultId)){

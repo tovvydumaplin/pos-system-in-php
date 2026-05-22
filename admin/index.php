@@ -58,7 +58,7 @@
         SELECT o.*, c.name, c.phone
         FROM orders o
         LEFT JOIN customers c ON c.id = o.customer_id
-        WHERE $notCancelled AND $orderBranchWhere
+        WHERE $notCancelled AND " . ($isSuperAdmin ? '1=1' : "o.branch_id='" . (int)$userBranchId . "'") . "
         ORDER BY o.id DESC
         LIMIT 5
     ";
@@ -206,11 +206,11 @@
                     <div class="summary-list">
                         <div class="summary-item">
                             <span><i class="fas fa-shirt"></i> Services</span>
-                            <strong><?= getCount('services'); ?></strong>
+                            <strong><?= dashboardCountWhere('services', $orderBranchWhere); ?></strong>
                         </div>
                         <div class="summary-item">
                             <span><i class="fas fa-users"></i> Customers</span>
-                            <strong><?= getCount('customers'); ?></strong>
+                            <strong><?= dashboardCountWhere('customers', $orderBranchWhere); ?></strong>
                         </div>
                         <?php if ($isSuperAdmin): ?>
                         <div class="summary-item">

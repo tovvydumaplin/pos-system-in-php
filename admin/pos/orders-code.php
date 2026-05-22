@@ -207,6 +207,7 @@ if(isset($_POST['saveCustomerBtn']))
     $name = validate($_POST['name']);
     $phone = validate($_POST['phone']);
     $email = validate($_POST['email']);
+    $branch_id = $_SESSION['loggedInUser']['branch_id'];
 
     if($name != '' && $phone != ''){
 
@@ -214,6 +215,7 @@ if(isset($_POST['saveCustomerBtn']))
             'name' => $name,
             'phone' => $phone,
             'email' => $email,
+            'branch_id' => $branch_id,
         ];
 
         $result = insert('customers', $data);
@@ -261,10 +263,28 @@ if(isset($_POST['saveOrder']))
 
         $sessionItems = $_SESSION['orderItems'];
 
-        // CALCULATE TOTAL
+        // CALCULATE TOTAL (including consumables from services)
         $totalAmount = 0;
         foreach($sessionItems as $item){
-            $totalAmount += $item['price'] * $item['quantity'];
+            $lineTotal = $item['price'] * $item['quantity'];
+            $totalAmount += $lineTotal;
+            
+            // Add consumables cost for services
+            if($item['type'] == 'service'){
+                $serviceConsumables = mysqli_query($conn, "
+                    SELECT si.quantity_required, lc.price
+                    FROM service_items si
+                    JOIN laundry_consumables lc ON lc.id = si.consumable_id
+                    WHERE si.service_id = '{$item['id']}'
+                ");
+                
+                if($serviceConsumables && mysqli_num_rows($serviceConsumables) > 0){
+                    while($sc = mysqli_fetch_assoc($serviceConsumables)){
+                        $consumablesCost = ($sc['price'] * $sc['quantity_required'] * $item['quantity']);
+                        $totalAmount += $consumablesCost;
+                    }
+                }
+            }
         }
 
         // INSERT ORDER
@@ -317,7 +337,7 @@ if(isset($_POST['saveOrder']))
                 // Deduct service_items consumables from stock
                 $svcItems = mysqli_query($conn, "
                     SELECT si.consumable_id, si.quantity_required,
-                           lc.item_name, lc.quantity as stock_qty
+                           lc.item_name, lc.quantity as stock_qty, lc.price
                     FROM service_items si
                     JOIN laundry_consumables lc ON lc.id = si.consumable_id
                     WHERE si.service_id = '{$item['id']}'
@@ -334,6 +354,15 @@ if(isset($_POST['saveOrder']))
                                 ' (needs ' . $deductQty . ', has ' . $svcItem['stock_qty'] . ')'
                             );
                         }
+
+                        // Save consumable to order_items as part of service
+                        insert('order_items', [
+                            'order_id' => $lastOrderId,
+                            'service_id' => $item['id'],
+                            'consumable_id' => $svcItem['consumable_id'],
+                            'price' => $svcItem['price'],
+                            'quantity' => $deductQty,
+                        ]);
 
                         mysqli_query($conn, "
                             UPDATE laundry_consumables

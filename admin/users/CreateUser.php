@@ -22,7 +22,9 @@
                         <label for="">User Type *</label>
                         <select name="user_type" required class="form-select">
                             <option value="">-- Select User Type --</option>
+                            <?php if(isset($_SESSION['loggedInUser']['user_type']) && $_SESSION['loggedInUser']['user_type'] == 'super_admin'): ?>
                             <option value="super_admin">Super Admin</option>
+                            <?php endif; ?>
                             <option value="admin">Admin</option>
                             <option value="staff">Staff</option>
                         </select>

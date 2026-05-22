@@ -3,31 +3,79 @@
     $isAdmin = isset($_SESSION['loggedInUser']['user_type']) && ($_SESSION['loggedInUser']['user_type'] == 'admin' || $_SESSION['loggedInUser']['user_type'] == 'super_admin');
 ?>
 <style>
+    /* Ultra Light Blue Sidebar Theme */
+    .sb-sidenav-dark {
+        background: #f8fbff !important;
+    }
+
+    .sb-sidenav-dark .sb-sidenav-menu {
+        background: transparent;
+    }
+
+    .sb-sidenav-dark .sb-sidenav-footer {
+        background-color: #eff6ff !important;
+    }
+
     /* Section headings */
     .sb-sidenav-dark .sb-sidenav-menu-heading {
-        color: #94a3b8;
+        color: #1e40af;
         font-size: 0.65rem;
         letter-spacing: .08em;
+    }
+
+    /* Nav links */
+    .sb-sidenav-dark .nav-link {
+        color: #1e40af;
+        border-radius: 0.375rem;
+        margin: 0.15rem 0.5rem;
+    }
+
+    .sb-sidenav-dark .nav-link:hover {
+        color: #2563eb;
+        background-color: rgba(59, 130, 246, 0.08);
     }
 
     /* Icon colors per link */
     .sb-sidenav-dark .nav-link .sb-nav-link-icon { transition: color .15s; }
 
-    .nav-icon-cyan   { color: #38bdf8 !important; }
-    .nav-icon-amber  { color: #fbbf24 !important; }
-    .nav-icon-green  { color: #4ade80 !important; }
-    .nav-icon-orange { color: #fb923c !important; }
-    .nav-icon-blue   { color: #60a5fa !important; }
-    .nav-icon-violet { color: #a78bfa !important; }
-    .nav-icon-emerald{ color: #34d399 !important; }
-    .nav-icon-pink   { color: #f472b6 !important; }
-    .nav-icon-indigo { color: #818cf8 !important; }
-    .nav-icon-slate  { color: #94a3b8 !important; }
+    .nav-icon-cyan   { color: #0891b2 !important; }
+    .nav-icon-amber  { color: #d97706 !important; }
+    .nav-icon-green  { color: #059669 !important; }
+    .nav-icon-orange { color: #ea580c !important; }
+    .nav-icon-blue   { color: #2563eb !important; }
+    .nav-icon-violet { color: #7c3aed !important; }
+    .nav-icon-emerald{ color: #059669 !important; }
+    .nav-icon-pink   { color: #db2777 !important; }
+    .nav-icon-indigo { color: #4f46e5 !important; }
+    .nav-icon-slate  { color: #475569 !important; }
 
     /* Active link gets a left accent */
     .sb-sidenav-dark .nav-link.active {
-        border-left: 3px solid #38bdf8;
+        border-left: 3px solid #3b82f6;
         padding-left: calc(1rem - 3px);
+        background-color: rgba(59, 130, 246, 0.12);
+        color: #2563eb;
+        border-radius: 0;
+        margin-left: 0.5rem;
+        margin-right: 0.5rem;
+    }
+
+    /* Collapse arrow */
+    .sb-sidenav-dark .sb-sidenav-collapse-arrow {
+        color: #3b82f6;
+    }
+
+    /* Nested menu */
+    .sb-sidenav-dark .sb-sidenav-menu-nested {
+        background-color: transparent;
+    }
+
+    .sb-sidenav-dark .sb-sidenav-menu-nested .nav-link {
+        margin: 0.1rem 0.5rem;
+    }
+
+    .sb-sidenav-dark .sb-sidenav-menu-nested .nav-link:hover {
+        background-color: rgba(59, 130, 246, 0.08);
     }
 </style>
 

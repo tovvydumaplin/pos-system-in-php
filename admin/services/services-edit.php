@@ -26,13 +26,28 @@
 
                 $serviceData = $service['data'];
 
-                // All consumables with stock
-                $allConsumables = mysqli_query($conn, "
-                    SELECT lc.id, lc.item_name, lc.quantity, b.branch_name
-                    FROM laundry_consumables lc
-                    LEFT JOIN branches b ON b.id = lc.branch_id
-                    ORDER BY lc.item_name ASC
-                ");
+                // All consumables with stock - filter by branch unless super_admin
+                $isSuperAdmin = isset($_SESSION['loggedInUser']['user_type']) && $_SESSION['loggedInUser']['user_type'] == 'super_admin';
+                $userBranchId = $_SESSION['loggedInUser']['branch_id'] ?? null;
+                
+                if ($isSuperAdmin) {
+                    // Super admin sees all consumables
+                    $allConsumables = mysqli_query($conn, "
+                        SELECT lc.id, lc.item_name, lc.quantity, b.branch_name
+                        FROM laundry_consumables lc
+                        LEFT JOIN branches b ON b.id = lc.branch_id
+                        ORDER BY lc.item_name ASC
+                    ");
+                } else {
+                    // Regular admin/staff only sees their branch consumables
+                    $allConsumables = mysqli_query($conn, "
+                        SELECT lc.id, lc.item_name, lc.quantity, b.branch_name
+                        FROM laundry_consumables lc
+                        LEFT JOIN branches b ON b.id = lc.branch_id
+                        WHERE lc.branch_id = '$userBranchId'
+                        ORDER BY lc.item_name ASC
+                    ");
+                }
                 $consumablesList = [];
                 if ($allConsumables && mysqli_num_rows($allConsumables) > 0) {
                     foreach ($allConsumables as $c) $consumablesList[] = $c;
@@ -68,15 +83,11 @@
                         <label>Description</label>
                         <textarea name="description" class="form-control" rows="3"><?= htmlspecialchars($serviceData['description']); ?></textarea>
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-6 mb-3">
                         <label>Price *</label>
                         <input type="text" name="price" required value="<?= $serviceData['price']; ?>" class="form-control" />
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <label>Quantity *</label>
-                        <input type="text" name="quantity" required value="<?= $serviceData['quantity']; ?>" class="form-control" />
-                    </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-6 mb-3">
                         <label>Image</label>
                         <input type="file" name="image" class="form-control" />
                         <?php if (!empty($serviceData['image'])): ?>

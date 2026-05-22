@@ -350,8 +350,8 @@ if(isset($_POST['saveService']))
     $name        = validate($_POST['name']);
     $description = validate($_POST['description']);
     $price       = validate($_POST['price']);
-    $quantity    = validate($_POST['quantity']);
     $status      = isset($_POST['status']) == true ? 1:0;
+    $branch_id   = $_SESSION['loggedInUser']['branch_id'];
 
     if($_FILES['image']['size'] > 0)
     {
@@ -373,9 +373,9 @@ if(isset($_POST['saveService']))
         'name'        => $name,
         'description' => $description,
         'price'       => $price,
-        'quantity'    => $quantity,
         'image'       => $finalImage,
-        'status'      => $status
+        'status'      => $status,
+        'branch_id'   => $branch_id
     ];
 
     $result = insert('services',$data);
@@ -416,8 +416,8 @@ if(isset($_POST['updateService']))
     $name        = validate($_POST['name']);
     $description = validate($_POST['description']);
     $price       = validate($_POST['price']);
-    $quantity    = validate($_POST['quantity']);
     $status      = isset($_POST['status']) == true ? 1:0;
+    $branch_id   = $_SESSION['loggedInUser']['branch_id'];
 
     if($_FILES['image']['size'] > 0)
     {
@@ -444,9 +444,9 @@ if(isset($_POST['updateService']))
         'name'        => $name,
         'description' => $description,
         'price'       => $price,
-        'quantity'    => $quantity,
         'image'       => $finalImage,
-        'status'      => $status
+        'status'      => $status,
+        'branch_id'   => $branch_id
     ];
 
     $result = update('services', $service_id, $data);
@@ -484,6 +484,7 @@ if(isset($_POST['saveCustomer']))
     $email = validate($_POST['email']);
     $phone = validate($_POST['phone']);
     $status = isset($_POST['status']) ? 1:0;
+    $branch_id = $_SESSION['loggedInUser']['branch_id'];
 
     if($name != '')
     {
@@ -498,7 +499,8 @@ if(isset($_POST['saveCustomer']))
             'name' => $name,
             'email' => $email,
             'phone' => $phone,
-            'status' => $status
+            'status' => $status,
+            'branch_id' => $branch_id
         ];
 
         $result = insert('customers', $data);
@@ -524,6 +526,7 @@ if(isset($_POST['updateCustomer']))
     $email = validate($_POST['email']);
     $phone = validate($_POST['phone']);
     $status = isset($_POST['status']) ? 1:0;
+    $branch_id = $_SESSION['loggedInUser']['branch_id'];
 
     if($name != '')
     {
@@ -538,7 +541,8 @@ if(isset($_POST['updateCustomer']))
             'name' => $name,
             'email' => $email,
             'phone' => $phone,
-            'status' => $status
+            'status' => $status,
+            'branch_id' => $branch_id
         ];
 
         $result = update('customers', $customerId, $data);

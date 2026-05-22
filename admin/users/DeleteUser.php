@@ -14,20 +14,20 @@ if(is_numeric($paraRestultId)){
         $userDeleteRes = delete('users', $userId);
         if($userDeleteRes)
         {
-            redirect('users/users.php','User Deleted Successfully');
+            redirect('users.php','User Deleted Successfully');
         }
         else
         {
-            redirect('users/users.php','Something Went Wrong');
+            redirect('users.php','Something Went Wrong');
         }
     }
     else
     {
-        redirect('users/users.php', $user['message']);
+        redirect('users.php', $user['message']);
     }
 
 }else{
-    redirect('users/users.php','Something Went Wrong');
+    redirect('users.php','Something Went Wrong');
 }
 
 ?>

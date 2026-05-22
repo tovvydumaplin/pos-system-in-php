@@ -144,7 +144,9 @@
                                     s.name as service_name,
                                     s.image as service_image,
 
-                                    lc.item_name as consumable_name
+                                    lc.item_name as consumable_name,
+                                    oi.service_id,
+                                    oi.consumable_id
 
                                 FROM order_items oi
                                 JOIN orders o ON oi.order_id = o.id
@@ -153,6 +155,7 @@
                                 LEFT JOIN laundry_consumables lc ON lc.id = oi.consumable_id
 
                                 WHERE o.tracking_no='$trackingNo'
+                                ORDER BY oi.service_id, oi.id
                                 ";
 
                                 $orderItemsRes = mysqli_query($conn, $orderItemQuery);
@@ -172,31 +175,54 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <?php foreach($orderItemsRes as $orderItemRow) : ?>
-                                                        <tr>
+                                                    <?php foreach($orderItemsRes as $orderItemRow) : 
+                                                        // Determine if this is a service, consumable from service, or standalone consumable
+                                                        $isService = !empty($orderItemRow['service_id']) && empty($orderItemRow['consumable_id']);
+                                                        $isServiceConsumable = !empty($orderItemRow['service_id']) && !empty($orderItemRow['consumable_id']);
+                                                        $isStandaloneConsumable = empty($orderItemRow['service_id']) && !empty($orderItemRow['consumable_id']);
+                                                    ?>
+                                                        <tr <?= $isServiceConsumable ? 'style="background-color: #f8f9fa;"' : '' ?>>
                                                             <td>
-                                                                <?php
-                                                                $image = !empty($orderItemRow['service_image']) 
-                                                                            ? '../'.$orderItemRow['service_image'] 
-                                                                            : '../assets/images/no-img.jpg';
-                                                                ?>
-
-                                                                <img src="<?= $image; ?>" 
-                                                                    style="width:50px;height:50px;" 
-                                                                    alt="Img" />
-                                                                <?php
-                                                                $name = $orderItemRow['service_name'] ?? $orderItemRow['consumable_name'];
-                                                                echo $name;
-                                                                ?>
+                                                                <?php if ($isService || $isStandaloneConsumable): ?>
+                                                                    <?php
+                                                                    $image = !empty($orderItemRow['service_image']) 
+                                                                                ? '../'.$orderItemRow['service_image'] 
+                                                                                : '../assets/images/no-img.jpg';
+                                                                    ?>
+                                                                    <img src="<?= $image; ?>" 
+                                                                        style="width:50px;height:50px;" 
+                                                                        alt="Img" />
+                                                                    <?php
+                                                                    $name = $orderItemRow['service_name'] ?? $orderItemRow['consumable_name'];
+                                                                    echo $name;
+                                                                    ?>
+                                                                <?php else: ?>
+                                                                    <div style="padding-left: 30px;">
+                                                                        <small class="text-muted">→</small>
+                                                                        <small><?= $orderItemRow['consumable_name']; ?></small>
+                                                                    </div>
+                                                                <?php endif; ?>
                                                             </td>
                                                             <td width="15%" class="fw-bold text-center">
-                                                                ₱<?= number_format($orderItemRow['orderItemPrice'], 2) ?>
+                                                                <?php if (!$isServiceConsumable): ?>
+                                                                    ₱<?= number_format($orderItemRow['orderItemPrice'], 2) ?>
+                                                                <?php else: ?>
+                                                                    <small class="text-muted">₱<?= number_format($orderItemRow['orderItemPrice'], 2) ?></small>
+                                                                <?php endif; ?>
                                                             </td>
                                                             <td width="15%" class="fw-bold text-center">
-                                                                <?= $orderItemRow['orderItemQuantity']; ?>
+                                                                <?php if (!$isServiceConsumable): ?>
+                                                                    <?= $orderItemRow['orderItemQuantity']; ?>
+                                                                <?php else: ?>
+                                                                    <small class="text-muted"><?= $orderItemRow['orderItemQuantity']; ?></small>
+                                                                <?php endif; ?>
                                                             </td>
                                                             <td width="15%" class="fw-bold text-center">
-                                                                ₱<?= number_format($orderItemRow['orderItemPrice'] * $orderItemRow['orderItemQuantity'], 2) ?>
+                                                                <?php if (!$isServiceConsumable): ?>
+                                                                    ₱<?= number_format($orderItemRow['orderItemPrice'] * $orderItemRow['orderItemQuantity'], 2) ?>
+                                                                <?php else: ?>
+                                                                    <small class="text-muted">₱<?= number_format($orderItemRow['orderItemPrice'] * $orderItemRow['orderItemQuantity'], 2) ?></small>
+                                                                <?php endif; ?>
                                                             </td>
                                                         </tr>
                                                     <?php endforeach; ?>

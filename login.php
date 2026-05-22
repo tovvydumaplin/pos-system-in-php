@@ -13,63 +13,77 @@ if(isset($_SESSION['loggedIn'])){
 
 <style>
     body {
-        background-color: #f3f4f6;
+        background-image: url('assets/images/tsl-bg.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
         min-height: 100vh;
         display: flex;
         flex-direction: column;
     }
-    
+
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 0;
+    }
+
     .login-container {
         flex: 1;
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 2rem 0;
-        min-height: calc(100vh - 120px);
+        min-height: 100vh;
+        position: relative;
+        z-index: 1;
     }
-    
+
     .login-card {
-        background: white;
-        border-radius: 0.5rem;
-        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(6px);
+        border-radius: 0.75rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
         overflow: hidden;
         max-width: 420px;
         width: 100%;
         margin: 0 1rem;
-        border: 1px solid #e5e7eb;
+        border: 1px solid rgba(255,255,255,0.3);
     }
-    
+
     .login-header {
         background: white;
         padding: 2rem 2rem 1rem;
         text-align: center;
         border-bottom: 1px solid #e5e7eb;
     }
-    
+
     .login-header h4 {
         margin: 0;
         font-weight: 700;
         font-size: 1.5rem;
         color: #111827;
     }
-    
+
     .login-header p {
         margin: 0.5rem 0 0 0;
         color: #6b7280;
         font-size: 0.875rem;
     }
-    
+
     .login-body {
         padding: 2rem;
     }
-    
+
     .form-label {
         font-weight: 500;
         color: #374151;
         font-size: 0.9375rem;
         margin-bottom: 0.5rem;
     }
-    
+
     .form-control {
         border: 1.5px solid #e5e7eb;
         border-radius: 0.375rem;
@@ -77,12 +91,12 @@ if(isset($_SESSION['loggedIn'])){
         font-size: 0.9375rem;
         transition: all 0.2s ease;
     }
-    
+
     .form-control:focus {
         border-color: #2563eb;
         box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
     }
-    
+
     .btn-login {
         background-color: #2563eb;
         border: none;
@@ -92,11 +106,11 @@ if(isset($_SESSION['loggedIn'])){
         border-radius: 0.375rem;
         transition: background-color 0.2s ease;
     }
-    
+
     .btn-login:hover {
         background-color: #1d4ed8;
     }
-    
+
     .logo-text {
         font-size: 2rem;
         font-weight: 700;

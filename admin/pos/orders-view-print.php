@@ -114,6 +114,7 @@
                             ON lc.id = oi.consumable_id
 
                         WHERE o.tracking_no='$trackingNo'
+                        ORDER BY oi.service_id, oi.id
                         ";
 
                         $orderItemQueryRes = mysqli_query($conn, $orderItemQuery);
@@ -137,14 +138,44 @@
                                                 <?php
                                                     $i = 1;
                                                     foreach($orderItemQueryRes as $key => $row) :
+                                                        // Determine if this is a service, consumable from service, or standalone consumable
+                                                        $isService = !empty($row['service_id']) && empty($row['consumable_id']);
+                                                        $isServiceConsumable = !empty($row['service_id']) && !empty($row['consumable_id']);
+                                                        $isStandaloneConsumable = empty($row['service_id']) && !empty($row['consumable_id']);
+                                                        
+                                                        $bgColor = $isServiceConsumable ? '#f8f9fa' : '#ffffff';
                                                 ?>
-                                                <tr>
-                                                    <td style="border-bottom: 1px solid #ccc;"><?= $i++; ?></td>
-                                                    <td style="border-bottom: 1px solid #ccc;"><?= $row['service_name'] ?? $row['consumable_name']; ?></td>
-                                                    <td style="border-bottom: 1px solid #ccc;"><?= number_format($row['orderItemPrice'],0) ?></td>
-                                                    <td style="border-bottom: 1px solid #ccc;"><?= $row['orderItemQuantity'] ?></td>
-                                                    <td style="border-bottom: 1px solid #ccc;" class="fw-bold">
-                                                        <?= number_format($row['orderItemPrice'] * $row['orderItemQuantity'], 0) ?>
+                                                <tr style="background-color: <?= $bgColor ?>;">
+                                                    <td style="border-bottom: 1px solid #ccc;">
+                                                        <?php if (!$isServiceConsumable) echo $i++; ?>
+                                                    </td>
+                                                    <td style="border-bottom: 1px solid #ccc;">
+                                                        <?php if ($isServiceConsumable): ?>
+                                                            &nbsp;&nbsp;&nbsp;&nbsp;→ <small><?= $row['consumable_name']; ?></small>
+                                                        <?php else: ?>
+                                                            <?= $row['service_name'] ?? $row['consumable_name']; ?>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td style="border-bottom: 1px solid #ccc;">
+                                                        <?php if ($isServiceConsumable): ?>
+                                                            <small><?= number_format($row['orderItemPrice'],0) ?></small>
+                                                        <?php else: ?>
+                                                            <?= number_format($row['orderItemPrice'],0) ?>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td style="border-bottom: 1px solid #ccc;">
+                                                        <?php if ($isServiceConsumable): ?>
+                                                            <small><?= $row['orderItemQuantity'] ?></small>
+                                                        <?php else: ?>
+                                                            <?= $row['orderItemQuantity'] ?>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td style="border-bottom: 1px solid #ccc;">
+                                                        <?php if ($isServiceConsumable): ?>
+                                                            <small><?= number_format($row['orderItemPrice'] * $row['orderItemQuantity'], 0) ?></small>
+                                                        <?php else: ?>
+                                                            <?= number_format($row['orderItemPrice'] * $row['orderItemQuantity'], 0) ?>
+                                                        <?php endif; ?>
                                                     </td>
                                                 </tr>
                                                 <?php endforeach; ?>

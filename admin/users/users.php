@@ -23,7 +23,20 @@
             </div>
 
             <?php
-            $users = getAll('users');
+            // Filter users by branch unless super_admin
+            $isSuperAdmin = isset($_SESSION['loggedInUser']['user_type']) && $_SESSION['loggedInUser']['user_type'] == 'super_admin';
+            $userBranchId = $_SESSION['loggedInUser']['branch_id'] ?? null;
+            
+            if ($isSuperAdmin) {
+                $users = getAll('users');
+            } else {
+                $users = mysqli_query($conn, "
+                    SELECT * FROM users 
+                    WHERE branch_id = '$userBranchId'
+                    ORDER BY id DESC
+                ");
+            }
+            
             if(!$users){
                 echo '<h4>Something Went Wrong!</h4>';
                 return false;

@@ -22,15 +22,11 @@
                         <label>Description</label>
                         <textarea name="description" class="form-control" rows="3"></textarea>
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <label>Price *</label>
+                    <div class="col-md-6 mb-3">
+                        <label>Base Price *</label>
                         <input type="text" name="price" required class="form-control" />
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <label>Quantity *</label>
-                        <input type="text" name="quantity" required class="form-control" />
-                    </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-6 mb-3">
                         <label>Image</label>
                         <input type="file" name="image" class="form-control" />
                     </div>
@@ -82,12 +78,28 @@
 </div>
 
 <?php
-$consumables = mysqli_query($conn, "
-    SELECT lc.id, lc.item_name, lc.quantity, b.branch_name
-    FROM laundry_consumables lc
-    LEFT JOIN branches b ON b.id = lc.branch_id
-    ORDER BY lc.item_name ASC
-");
+// Filter consumables by branch unless super_admin
+$isSuperAdmin = isset($_SESSION['loggedInUser']['user_type']) && $_SESSION['loggedInUser']['user_type'] == 'super_admin';
+$userBranchId = $_SESSION['loggedInUser']['branch_id'] ?? null;
+
+if ($isSuperAdmin) {
+    // Super admin sees all consumables
+    $consumables = mysqli_query($conn, "
+        SELECT lc.id, lc.item_name, lc.quantity, b.branch_name
+        FROM laundry_consumables lc
+        LEFT JOIN branches b ON b.id = lc.branch_id
+        ORDER BY lc.item_name ASC
+    ");
+} else {
+    // Regular admin/staff only sees their branch consumables
+    $consumables = mysqli_query($conn, "
+        SELECT lc.id, lc.item_name, lc.quantity, b.branch_name
+        FROM laundry_consumables lc
+        LEFT JOIN branches b ON b.id = lc.branch_id
+        WHERE lc.branch_id = '$userBranchId'
+        ORDER BY lc.item_name ASC
+    ");
+}
 $consumableOptions = '<option value="" data-stock="0">-- Select Item --</option>';
 if ($consumables && mysqli_num_rows($consumables) > 0) {
     foreach ($consumables as $c) {

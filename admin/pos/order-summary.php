@@ -91,7 +91,26 @@ if(!isset($_SESSION['orderItems'])){
                                             foreach($sessionItems as $key => $row):
 
                                             $total = $row['price'] * $row['quantity'];
-                                            $totalAmount += $total;
+                                            
+                                            // Calculate consumables cost for services
+                                            $consumablesCost = 0;
+                                            if($row['type'] == 'service'){
+                                                $serviceConsumables = mysqli_query($conn, "
+                                                    SELECT si.quantity_required, lc.price
+                                                    FROM service_items si
+                                                    JOIN laundry_consumables lc ON lc.id = si.consumable_id
+                                                    WHERE si.service_id = '{$row['id']}'
+                                                ");
+                                                
+                                                if($serviceConsumables && mysqli_num_rows($serviceConsumables) > 0){
+                                                    while($sc = mysqli_fetch_assoc($serviceConsumables)){
+                                                        $consumablesCost += ($sc['price'] * $sc['quantity_required'] * $row['quantity']);
+                                                    }
+                                                }
+                                            }
+                                            
+                                            $lineTotal = $total + $consumablesCost;
+                                            $totalAmount += $lineTotal;
                                         ?>
                                         <tr>
                                             <td><?= $i++; ?></td>
@@ -107,7 +126,12 @@ if(!isset($_SESSION['orderItems'])){
                                             <td><?= $row['name']; ?></td>
                                             <td><?= number_format($row['price'],0); ?></td>
                                             <td><?= $row['quantity']; ?></td>
-                                            <td><?= number_format($total,0); ?></td>
+                                            <td>
+                                                <?= number_format($lineTotal,0); ?>
+                                                <?php if($row['type'] == 'service' && $consumablesCost > 0): ?>
+                                                    <br><small style="color:#666;">(+consumables: <?= number_format($consumablesCost,0); ?>)</small>
+                                                <?php endif; ?>
+                                            </td>
                                         </tr>
                                         <?php endforeach; ?>
 

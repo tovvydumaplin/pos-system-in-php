@@ -12,7 +12,20 @@
             <?php alertMessage(); ?>
 
             <?php
-            $customers = getAll('customers');
+            // Filter customers by branch unless super_admin
+            $isSuperAdmin = isset($_SESSION['loggedInUser']['user_type']) && $_SESSION['loggedInUser']['user_type'] == 'super_admin';
+            $userBranchId = $_SESSION['loggedInUser']['branch_id'] ?? null;
+            
+            if ($isSuperAdmin) {
+                $customers = getAll('customers');
+            } else {
+                $customers = mysqli_query($conn, "
+                    SELECT * FROM customers 
+                    WHERE branch_id = '$userBranchId'
+                    ORDER BY id DESC
+                ");
+            }
+            
             if(!$customers){
                 echo '<h4>Something Went Wrong!</h4>';
                 return false;
@@ -29,17 +42,28 @@
                             <th>Name</th>
                             <th>Email</th>
                             <th>Phone</th>
+                            <th>Branch</th>
                             <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach($customers as $item) : ?>
+                        <?php foreach($customers as $item) : 
+                            // Get branch name if assigned
+                            $branchName = '-';
+                            if(isset($item['branch_id']) && !empty($item['branch_id'])){
+                                $branchData = getById('branches', $item['branch_id']);
+                                if($branchData && $branchData['status'] == 200){
+                                    $branchName = $branchData['data']['branch_name'];
+                                }
+                            }
+                        ?>
                         <tr>
                             <td><?= $item['id'] ?></td>
                             <td><?= $item['name'] ?></td>
                             <td><?= $item['email'] ?></td>
                             <td><?= $item['phone'] ?></td>
+                            <td><?= $branchName ?></td>
                             <td>
                                 <?php
                                     if($item['status'] == 1){
