@@ -1,6 +1,6 @@
 
 </main>
-                <footer class="py-4 bg-light mt-auto">
+                <footer class="py-4 bg-light mt-auto" id="mainFooter" style="position:fixed;bottom:0;left:225px;right:0;z-index:1030;border-top:1px solid #dee2e6;">
                     <div class="container-fluid px-4">
                         <div class="d-flex align-items-center justify-content-between flex-wrap">
                             <div class="text-muted mb-2 mb-md-0">
@@ -47,7 +47,21 @@
 
         <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
         <script src="<?= $baseUrl ?>assets/js/custom.js"></script>
-        
+        <script>
+            (function () {
+                var footer = document.getElementById('mainFooter');
+                function syncFooter() {
+                    footer.style.left = document.body.classList.contains('sb-sidenav-toggled') ? '0' : '225px';
+                }
+                syncFooter();
+                var toggle = document.getElementById('sidebarToggle');
+                if (toggle) {
+                    toggle.addEventListener('click', function () {
+                        setTimeout(syncFooter, 0);
+                    });
+                }
+            })();
+        </script>
 
     </body>
 </html>

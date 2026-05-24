@@ -377,6 +377,7 @@ if(isset($_POST['saveOrder']))
                             'reference_no'  => $trackingNo,
                             'remarks'       => 'Used in service: ' . $item['name'],
                             'created_by'    => $order_placed_by_id,
+                            'branch_id'     => $branch_id,
                         ]);
                     }
                 }

@@ -2,6 +2,11 @@
    MODERN WHITE THEME STYLES
    =========================== */
 
+/* Fixed footer clearance */
+#layoutSidenav_content main {
+    padding-bottom: 72px;
+}
+
 /* Select2 Styling */
 .select2-container .select2-selection--single{
     height: 38px !important;

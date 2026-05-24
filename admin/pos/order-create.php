@@ -4,7 +4,6 @@
 $branchId = $_SESSION['loggedInUser']['branch_id'];
 $isSuperAdmin = isset($_SESSION['loggedInUser']['user_type']) && $_SESSION['loggedInUser']['user_type'] == 'super_admin';
 
-// Build services query with branch filtering (unless super_admin)
 $serviceWhereClause = $isSuperAdmin ? "s.status = 0" : "s.status = 0 AND s.branch_id = '$branchId'";
 
 $servicesQuery = mysqli_query($conn, "
@@ -46,35 +45,311 @@ $consumables = mysqli_query($conn, "
 ");
 ?>
 
-<div class="container-fluid px-4 pt-4">
+<style>
+    .page-hero {
+        background: #f8f9fc;
+        border: 1px solid #e6e9f0;
+        border-radius: 14px;
+        padding: 1.5rem 2rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .page-hero h2 {
+        color: #2d3250;
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    .page-hero p {
+        color: #9ba3b8;
+        font-size: 0.85rem;
+        margin: 0.2rem 0 0;
+    }
+    .btn-back {
+        background: #fff;
+        color: #6b7189;
+        border: 1px solid #dde1ec;
+        border-radius: 9px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        padding: 0.55rem 1.25rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        transition: background 0.15s;
+    }
+    .btn-back:hover { background: #f0f2f8; color: #2d3250; }
 
-    <!-- Page Header -->
-    <div class="d-flex align-items-center justify-content-between mb-4">
+    .form-panel {
+        background: #fff;
+        border: 1px solid #e6e9f0;
+        border-radius: 14px;
+        overflow: hidden;
+        margin-bottom: 1.25rem;
+    }
+    .form-panel-header {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid #f0f2f8;
+        background: #fafbfc;
+    }
+    .panel-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 0.8rem;
+    }
+    .panel-icon.blue  { background: #eef2ff; color: #4361ee; }
+    .panel-icon.green { background: #e6f9f0; color: #1a9e5f; }
+    .panel-icon.amber { background: #fff8ec; color: #e67e22; }
+    .form-panel-header span.title {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: #2d3250;
+    }
+    .form-panel-body { padding: 1.25rem; }
+
+    .form-label {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #4a5072;
+        margin-bottom: 0.35rem;
+    }
+    .form-control, .form-select {
+        border-color: #dde1ec;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        color: #2d3250;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #2d3250;
+        box-shadow: 0 0 0 0.2rem rgba(45,50,80,0.1);
+    }
+
+    .service-info-box {
+        background: #f4f6ff;
+        border: 1px solid #d6dcff;
+        border-radius: 10px;
+        padding: 0.85rem 1rem;
+        margin-bottom: 1rem;
+    }
+    .service-info-box .info-name {
+        font-weight: 700;
+        color: #2d3250;
+        font-size: 0.9rem;
+    }
+    .service-info-box .info-price {
+        font-weight: 700;
+        color: #4361ee;
+        font-size: 0.9rem;
+    }
+
+    .btn-add-primary {
+        background: #2d3250;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        padding: 0.5rem 1.1rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        transition: background 0.2s;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+    .btn-add-primary:hover { background: #424870; color: #fff; }
+
+    /* Order Summary Table */
+    .summary-table {
+        margin: 0;
+        font-size: 0.855rem;
+    }
+    .summary-table thead tr {
+        background: #f4f6fb;
+        border-bottom: 2px solid #e6e9f0;
+    }
+    .summary-table thead th {
+        color: #6b7189;
+        font-weight: 600;
+        font-size: 0.73rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        padding: 0.75rem 1rem;
+        border: none;
+        white-space: nowrap;
+    }
+    .summary-table tbody tr {
+        border-bottom: 1px solid #f0f2f8;
+        transition: background 0.1s;
+    }
+    .summary-table tbody tr:last-child { border-bottom: none; }
+    .summary-table tbody tr:hover { background: #f8f9fc; }
+    .summary-table td {
+        padding: 0.75rem 1rem;
+        vertical-align: middle;
+        border: none;
+        color: #2d3250;
+    }
+
+    .type-badge-service { background: #eef2ff; color: #4361ee; border-radius: 6px; font-size: 0.72rem; padding: 0.2rem 0.55rem; font-weight: 600; }
+    .type-badge-item    { background: #e6f9f0; color: #1a9e5f; border-radius: 6px; font-size: 0.72rem; padding: 0.2rem 0.55rem; font-weight: 600; }
+
+    .consumable-line {
+        font-size: 0.75rem;
+        color: #9ba3b8;
+        display: block;
+        margin-top: 0.2rem;
+    }
+    .consumable-line i { font-size: 0.6rem; opacity: 0.5; }
+
+    .btn-remove-item {
+        background: #fdecea;
+        color: #d63031;
+        border: none;
+        border-radius: 7px;
+        width: 28px;
+        height: 28px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.72rem;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background 0.15s;
+    }
+    .btn-remove-item:hover { background: #fbc8c8; color: #d63031; }
+
+    .totals-box {
+        background: #f8f9fc;
+        border-top: 2px solid #e6e9f0;
+        padding: 1rem 1.25rem;
+    }
+    .totals-box .total-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        font-size: 0.84rem;
+        color: #6b7189;
+    }
+    .totals-box .total-row span:last-child { font-weight: 600; color: #2d3250; }
+    .totals-box .grand-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 0.65rem;
+        border-top: 1px solid #e6e9f0;
+        margin-top: 0.25rem;
+    }
+    .totals-box .grand-row .grand-label { font-weight: 700; color: #2d3250; font-size: 0.9rem; }
+    .totals-box .grand-row .grand-amount { font-weight: 800; font-size: 1.25rem; color: #4361ee; }
+
+    .checkout-footer {
+        padding: 1.1rem 1.25rem;
+        border-top: 1px solid #e6e9f0;
+        background: #fff;
+    }
+
+    .btn-place {
+        background: #2d3250;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.88rem;
+        font-weight: 700;
+        padding: 0.6rem 1.4rem;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        transition: background 0.2s;
+        cursor: pointer;
+    }
+    .btn-place:hover { background: #424870; }
+
+    .empty-cart {
+        text-align: center;
+        padding: 3.5rem 2rem;
+        color: #9ba3b8;
+    }
+    .empty-cart .cart-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #f4f6fb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.3rem;
+        color: #c5cade;
+    }
+    .empty-cart h6 { font-weight: 700; color: #4a5072; margin-bottom: 0.3rem; }
+    .empty-cart p  { font-size: 0.82rem; margin: 0; }
+
+    .items-count-badge {
+        background: #eef2ff;
+        color: #4361ee;
+        border-radius: 20px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 0.2rem 0.6rem;
+    }
+
+    .btn-add-customer {
+        background: #fff;
+        color: #6b7189;
+        border: 1px solid #dde1ec;
+        border-radius: 8px;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+        transition: background 0.15s;
+        flex-shrink: 0;
+    }
+    .btn-add-customer:hover { background: #f0f2f8; color: #2d3250; }
+</style>
+
+<div class="container-fluid px-4 mt-4">
+
+    <!-- HERO -->
+    <div class="page-hero">
         <div>
-            <p class="dashboard-kicker mb-0">Point of Sale</p>
-            <h4 class="mb-0 fw-bold" style="color:#111827;">New Order</h4>
+            <h2><i class="fas fa-cash-register me-2" style="opacity:0.75;"></i>New Order</h2>
+            <p>Point of Sale — add services and items to build an order</p>
         </div>
-        <a href="orders.php" class="btn btn-outline-secondary btn-sm">
-            <i class="fas fa-arrow-left me-1"></i> Back to Orders
+        <a href="orders.php" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Back to Orders
         </a>
     </div>
 
     <?php alertMessage(); ?>
 
-    <div class="row g-4 pb-4">
+    <div class="row g-4 pb-5">
 
-        <!-- ===================== LEFT: Add Items ===================== -->
+        <!-- ===================== LEFT ===================== -->
         <div class="col-xl-5 col-lg-5">
 
             <!-- Add Service -->
-            <div class="card shadow-sm mb-3">
-                <div class="card-header d-flex align-items-center gap-2" style="background:#fff;">
-                    <span style="width:32px;height:32px;border-radius:8px;background:#eff6ff;color:#2563eb;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">
-                        <i class="fas fa-concierge-bell" style="font-size:.8rem;"></i>
-                    </span>
-                    <span class="fw-semibold" style="font-size:.95rem;">Add Service</span>
+            <div class="form-panel">
+                <div class="form-panel-header">
+                    <span class="panel-icon blue"><i class="fas fa-concierge-bell"></i></span>
+                    <span class="title">Add Service</span>
                 </div>
-                <div class="card-body">
+                <div class="form-panel-body">
                     <form action="orders-code.php" method="POST">
                         <div class="mb-3">
                             <label class="form-label">Service</label>
@@ -88,26 +363,23 @@ $consumables = mysqli_query($conn, "
                             </select>
                         </div>
 
-                        <!-- Service Info Panel -->
-                        <div id="serviceInfo" class="d-none mb-3">
-                            <div class="p-3 rounded-3" style="background:#f0f7ff;border:1px solid #bfdbfe;">
-                                <div class="d-flex align-items-center justify-content-between mb-2">
-                                    <span class="fw-semibold" id="infoName" style="color:#1e3a8a;"></span>
-                                    <span class="fw-bold" id="infoPrice" style="color:#2563eb;"></span>
-                                </div>
-                                <div id="infoItems" class="small"></div>
+                        <div id="serviceInfo" class="service-info-box d-none">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="info-name" id="infoName"></span>
+                                <span class="info-price" id="infoPrice"></span>
                             </div>
+                            <div id="infoItems" class="small"></div>
                         </div>
 
                         <div class="row g-2 align-items-end">
                             <div class="col">
                                 <label class="form-label">Quantity</label>
                                 <input type="number" name="service_qty" id="serviceQty"
-                                       value="1" min="1" class="form-control" />
+                                       value="1" min="1" class="form-control">
                             </div>
                             <div class="col-auto">
-                                <button type="submit" name="addService" class="btn btn-primary">
-                                    <i class="fas fa-plus me-1"></i> Add Service
+                                <button type="submit" name="addService" class="btn-add-primary">
+                                    <i class="fas fa-plus"></i> Add Service
                                 </button>
                             </div>
                         </div>
@@ -116,14 +388,12 @@ $consumables = mysqli_query($conn, "
             </div>
 
             <!-- Add Item Manually -->
-            <div class="card shadow-sm">
-                <div class="card-header d-flex align-items-center gap-2" style="background:#fff;">
-                    <span style="width:32px;height:32px;border-radius:8px;background:#f0fdf4;color:#059669;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">
-                        <i class="fas fa-box" style="font-size:.8rem;"></i>
-                    </span>
-                    <span class="fw-semibold" style="font-size:.95rem;">Add Item Manually</span>
+            <div class="form-panel">
+                <div class="form-panel-header">
+                    <span class="panel-icon green"><i class="fas fa-box"></i></span>
+                    <span class="title">Add Item Manually</span>
                 </div>
-                <div class="card-body">
+                <div class="form-panel-body">
                     <form action="orders-code.php" method="POST">
                         <div class="mb-3">
                             <label class="form-label">Item</label>
@@ -143,11 +413,11 @@ $consumables = mysqli_query($conn, "
                         <div class="row g-2 align-items-end">
                             <div class="col">
                                 <label class="form-label">Quantity</label>
-                                <input type="number" name="item_qty" value="1" min="1" class="form-control" />
+                                <input type="number" name="item_qty" value="1" min="1" class="form-control">
                             </div>
                             <div class="col-auto">
-                                <button type="submit" name="addConsumable" class="btn btn-primary">
-                                    <i class="fas fa-plus me-1"></i> Add Item
+                                <button type="submit" name="addConsumable" class="btn-add-primary">
+                                    <i class="fas fa-plus"></i> Add Item
                                 </button>
                             </div>
                         </div>
@@ -157,35 +427,31 @@ $consumables = mysqli_query($conn, "
 
         </div>
 
-        <!-- ===================== RIGHT: Order Summary ===================== -->
+        <!-- ===================== RIGHT ===================== -->
         <div class="col-xl-7 col-lg-7">
-            <div class="card shadow-sm" style="min-height:420px;">
-                <div class="card-header d-flex align-items-center justify-content-between" style="background:#fff;">
-                    <div class="d-flex align-items-center gap-2">
-                        <span style="width:32px;height:32px;border-radius:8px;background:#fff7ed;color:#ea580c;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">
-                            <i class="fas fa-receipt" style="font-size:.8rem;"></i>
-                        </span>
-                        <span class="fw-semibold" style="font-size:.95rem;">Order Summary</span>
-                    </div>
+            <div class="form-panel" style="min-height:420px;">
+
+                <div class="form-panel-header">
+                    <span class="panel-icon amber"><i class="fas fa-receipt"></i></span>
+                    <span class="title">Order Summary</span>
                     <?php if (!empty($_SESSION['orderItems'])): ?>
-                        <span class="badge bg-primary rounded-pill"><?= count($_SESSION['orderItems']) ?> item(s)</span>
+                        <span class="items-count-badge ms-auto"><?= count($_SESSION['orderItems']) ?> item(s)</span>
                     <?php endif; ?>
                 </div>
 
                 <?php if (!empty($_SESSION['orderItems'])): ?>
 
-                    <!-- Items Table -->
                     <div class="table-responsive">
-                        <table class="table mb-0" style="font-size:.875rem;">
+                        <table class="table summary-table">
                             <thead>
-                                <tr style="background:#f9fafb;">
-                                    <th class="px-3 py-2 fw-semibold" style="color:#6b7280;font-size:.75rem;text-transform:uppercase;border-bottom:1px solid #e5e7eb;">#</th>
-                                    <th class="px-3 py-2 fw-semibold" style="color:#6b7280;font-size:.75rem;text-transform:uppercase;border-bottom:1px solid #e5e7eb;">Type</th>
-                                    <th class="px-3 py-2 fw-semibold" style="color:#6b7280;font-size:.75rem;text-transform:uppercase;border-bottom:1px solid #e5e7eb;">Name</th>
-                                    <th class="px-3 py-2 fw-semibold text-center" style="color:#6b7280;font-size:.75rem;text-transform:uppercase;border-bottom:1px solid #e5e7eb;">Qty</th>
-                                    <th class="px-3 py-2 fw-semibold text-end" style="color:#6b7280;font-size:.75rem;text-transform:uppercase;border-bottom:1px solid #e5e7eb;">Price</th>
-                                    <th class="px-3 py-2 fw-semibold text-end" style="color:#6b7280;font-size:.75rem;text-transform:uppercase;border-bottom:1px solid #e5e7eb;">Total</th>
-                                    <th class="px-3 py-2" style="border-bottom:1px solid #e5e7eb;"></th>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Type</th>
+                                    <th>Name</th>
+                                    <th class="text-center">Qty</th>
+                                    <th class="text-end">Price</th>
+                                    <th class="text-end">Total</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -195,12 +461,11 @@ $consumables = mysqli_query($conn, "
                                 $itemsTotal = 0;
                                 $consumablesFromServicesTotal = 0;
                                 $grandTotal = 0;
-                                
+
                                 foreach ($_SESSION['orderItems'] as $key => $item):
                                     $lineTotal = $item['price'] * $item['quantity'];
-                                    
-                                    // If it's a service, calculate consumables cost
                                     $consumablesCost = 0;
+
                                     if ($item['type'] == 'service') {
                                         $serviceConsumables = mysqli_query($conn, "
                                             SELECT si.quantity_required, lc.price, lc.item_name
@@ -208,66 +473,58 @@ $consumables = mysqli_query($conn, "
                                             JOIN laundry_consumables lc ON lc.id = si.consumable_id
                                             WHERE si.service_id = '{$item['id']}'
                                         ");
-                                        
                                         if ($serviceConsumables && mysqli_num_rows($serviceConsumables) > 0) {
                                             while ($sc = mysqli_fetch_assoc($serviceConsumables)) {
                                                 $consumablesCost += ($sc['price'] * $sc['quantity_required'] * $item['quantity']);
                                             }
                                         }
-                                        
                                         $consumablesFromServicesTotal += $consumablesCost;
                                         $servicesTotal += $lineTotal;
                                     } else {
                                         $itemsTotal += $lineTotal;
                                     }
-                                    
+
                                     $grandTotal += $lineTotal + $consumablesCost;
                                 ?>
-                                <tr style="border-bottom:1px solid #f3f4f6;">
-                                    <td class="px-3 py-2" style="color:#9ca3af;"><?= $i++ ?></td>
-                                    <td class="px-3 py-2">
+                                <tr>
+                                    <td style="color:#9ba3b8;"><?= $i++ ?></td>
+                                    <td>
                                         <?php if ($item['type'] == 'service'): ?>
-                                            <span class="badge" style="background:#eff6ff;color:#2563eb;font-weight:500;">Service</span>
+                                            <span class="type-badge-service">Service</span>
                                         <?php else: ?>
-                                            <span class="badge" style="background:#f0fdf4;color:#059669;font-weight:500;">Item</span>
+                                            <span class="type-badge-item">Item</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td class="px-3 py-2 fw-medium">
-                                        <?= htmlspecialchars($item['name']) ?>
+                                    <td>
+                                        <span style="font-weight:600;"><?= htmlspecialchars($item['name']) ?></span>
                                         <?php if ($item['type'] == 'service'): ?>
                                             <?php
-                                            $serviceConsumablesQuery = mysqli_query($conn, "
+                                            $scq = mysqli_query($conn, "
                                                 SELECT si.quantity_required, lc.price, lc.item_name
                                                 FROM service_items si
                                                 JOIN laundry_consumables lc ON lc.id = si.consumable_id
                                                 WHERE si.service_id = '{$item['id']}'
                                             ");
-                                            
-                                            if ($serviceConsumablesQuery && mysqli_num_rows($serviceConsumablesQuery) > 0):
+                                            if ($scq && mysqli_num_rows($scq) > 0):
+                                                while ($sc = mysqli_fetch_assoc($scq)):
+                                                    $totalQtyNeeded = $sc['quantity_required'] * $item['quantity'];
+                                                    $itemCost = $sc['price'] * $totalQtyNeeded;
                                             ?>
-                                                <div class="mt-1">
-                                                    <?php while ($sc = mysqli_fetch_assoc($serviceConsumablesQuery)): 
-                                                        $totalQtyNeeded = $sc['quantity_required'] * $item['quantity'];
-                                                        $itemCost = $sc['price'] * $totalQtyNeeded;
-                                                    ?>
-                                                        <small class="d-block text-muted" style="font-size:0.75rem;">
-                                                            <i class="fas fa-arrow-right" style="font-size:0.6rem;opacity:0.5;"></i>
-                                                            <?= htmlspecialchars($sc['item_name']) ?> 
-                                                            × <?= $totalQtyNeeded ?> 
-                                                            @ &#8369;<?= number_format($sc['price'], 2) ?> 
-                                                            = &#8369;<?= number_format($itemCost, 2) ?>
-                                                        </small>
-                                                    <?php endwhile; ?>
-                                                </div>
-                                            <?php endif; ?>
+                                                <span class="consumable-line">
+                                                    <i class="fas fa-arrow-right"></i>
+                                                    <?= htmlspecialchars($sc['item_name']) ?>
+                                                    &times;<?= $totalQtyNeeded ?>
+                                                    @ &#8369;<?= number_format($sc['price'], 2) ?>
+                                                    = &#8369;<?= number_format($itemCost, 2) ?>
+                                                </span>
+                                            <?php endwhile; endif; ?>
                                         <?php endif; ?>
                                     </td>
-                                    <td class="px-3 py-2 text-center" style="color:#374151;"><?= $item['quantity'] ?></td>
-                                    <td class="px-3 py-2 text-end" style="color:#6b7280;">&#8369;<?= number_format($item['price'], 2) ?></td>
-                                    <td class="px-3 py-2 text-end fw-semibold" style="color:#111827;">&#8369;<?= number_format($lineTotal + $consumablesCost, 2) ?></td>
-                                    <td class="px-3 py-2 text-center">
-                                        <a href="order-item-delete.php?index=<?= $key ?>"
-                                           class="btn btn-sm btn-danger" title="Remove">
+                                    <td class="text-center"><?= $item['quantity'] ?></td>
+                                    <td class="text-end" style="color:#6b7189;">&#8369;<?= number_format($item['price'], 2) ?></td>
+                                    <td class="text-end" style="font-weight:700;">&#8369;<?= number_format($lineTotal + $consumablesCost, 2) ?></td>
+                                    <td class="text-center">
+                                        <a href="order-item-delete.php?index=<?= $key ?>" class="btn-remove-item" title="Remove">
                                             <i class="fas fa-times"></i>
                                         </a>
                                     </td>
@@ -277,30 +534,30 @@ $consumables = mysqli_query($conn, "
                         </table>
                     </div>
 
-                    <!-- Totals Summary -->
-                    <div class="px-3 py-3" style="border-top:2px solid #e5e7eb;background:#fafbfc;">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <span class="small" style="color:#6b7280;">Services Total</span>
-                            <span class="small fw-semibold" style="color:#374151;">&#8369;<?= number_format($servicesTotal, 2) ?></span>
+                    <!-- Totals -->
+                    <div class="totals-box">
+                        <div class="total-row">
+                            <span>Services Total</span>
+                            <span>&#8369;<?= number_format($servicesTotal, 2) ?></span>
                         </div>
                         <?php if ($consumablesFromServicesTotal > 0): ?>
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <span class="small" style="color:#6b7280;">Service Consumables</span>
-                            <span class="small fw-semibold" style="color:#374151;">&#8369;<?= number_format($consumablesFromServicesTotal, 2) ?></span>
+                        <div class="total-row">
+                            <span>Service Consumables</span>
+                            <span>&#8369;<?= number_format($consumablesFromServicesTotal, 2) ?></span>
                         </div>
                         <?php endif; ?>
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <span class="small" style="color:#6b7280;">Manual Items Total</span>
-                            <span class="small fw-semibold" style="color:#374151;">&#8369;<?= number_format($itemsTotal, 2) ?></span>
+                        <div class="total-row">
+                            <span>Manual Items Total</span>
+                            <span>&#8369;<?= number_format($itemsTotal, 2) ?></span>
                         </div>
-                        <div class="d-flex align-items-center justify-content-between pt-2" style="border-top:1px solid #e5e7eb;">
-                            <span class="fw-semibold" style="color:#374151;">Grand Total</span>
-                            <span class="fw-bold" style="font-size:1.25rem;color:#2563eb;">&#8369;<?= number_format($grandTotal, 2) ?></span>
+                        <div class="grand-row">
+                            <span class="grand-label">Grand Total</span>
+                            <span class="grand-amount">&#8369;<?= number_format($grandTotal, 2) ?></span>
                         </div>
                     </div>
 
-                    <!-- Checkout Footer -->
-                    <div class="card-footer" style="background:#fff;border-top:1px solid #e5e7eb;">
+                    <!-- Checkout -->
+                    <div class="checkout-footer">
                         <form id="proceedForm">
                             <div class="row g-3 align-items-end">
                                 <div class="col-md-4">
@@ -318,29 +575,27 @@ $consumables = mysqli_query($conn, "
                                             <select id="cphone" class="form-select mySelect2">
                                                 <option value="">— Select customer —</option>
                                                 <?php
-                                                // Filter customers by branch unless super_admin
                                                 if ($isSuperAdmin) {
                                                     $customers = getAll('customers');
                                                 } else {
                                                     $customers = mysqli_query($conn, "
-                                                        SELECT * FROM customers 
+                                                        SELECT * FROM customers
                                                         WHERE branch_id = '$branchId'
                                                         ORDER BY name ASC
                                                     ");
                                                 }
-                                                
                                                 if ($customers && mysqli_num_rows($customers) > 0) {
                                                     foreach ($customers as $cust) {
-                                                        echo '<option value="'.$cust['phone'].'">'
-                                                            .$cust['phone'].' &mdash; '.htmlspecialchars($cust['name'])
-                                                            .'</option>';
+                                                        echo '<option value="' . $cust['phone'] . '">'
+                                                            . $cust['phone'] . ' &mdash; ' . htmlspecialchars($cust['name'])
+                                                            . '</option>';
                                                     }
                                                 }
                                                 ?>
                                             </select>
                                         </div>
                                         <button type="button"
-                                                class="btn btn-outline-secondary flex-shrink-0"
+                                                class="btn-add-customer"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#addCustomerModal"
                                                 title="Add new customer">
@@ -349,8 +604,8 @@ $consumables = mysqli_query($conn, "
                                     </div>
                                 </div>
                                 <div class="col-md-2">
-                                    <button type="button" class="btn btn-primary w-100 proceedToPlace">
-                                        <i class="fas fa-check me-1"></i> Place
+                                    <button type="button" class="btn-place proceedToPlace">
+                                        <i class="fas fa-check"></i> Place
                                     </button>
                                 </div>
                             </div>
@@ -359,13 +614,10 @@ $consumables = mysqli_query($conn, "
 
                 <?php else: ?>
 
-                    <!-- Empty State -->
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center py-5 text-center">
-                        <div class="mb-3" style="width:60px;height:60px;border-radius:50%;background:#f3f4f6;display:flex;align-items:center;justify-content:center;">
-                            <i class="fas fa-shopping-cart" style="font-size:1.25rem;color:#d1d5db;"></i>
-                        </div>
-                        <p class="mb-1 fw-semibold" style="color:#374151;">No items added yet</p>
-                        <small style="color:#9ca3af;">Pick a service or item from the left to get started.</small>
+                    <div class="empty-cart">
+                        <div class="cart-icon"><i class="fas fa-shopping-cart"></i></div>
+                        <h6>No items added yet</h6>
+                        <p>Pick a service or item from the left to get started.</p>
                     </div>
 
                 <?php endif; ?>
@@ -378,15 +630,15 @@ $consumables = mysqli_query($conn, "
 <!-- ADD CUSTOMER MODAL -->
 <div class="modal fade" id="addCustomerModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content" style="border-radius:14px;border:1px solid #e6e9f0;">
             <form id="addCustomerForm">
-                <div class="modal-header" style="border-bottom:1px solid #e5e7eb;">
-                    <h5 class="modal-title fw-semibold">
-                        <i class="fas fa-user-plus me-2" style="color:#2563eb;"></i>Add New Customer
+                <div class="modal-header" style="border-bottom:1px solid #f0f2f8;padding:1.1rem 1.5rem;">
+                    <h5 class="modal-title fw-bold" style="color:#2d3250;font-size:1rem;">
+                        <i class="fas fa-user-plus me-2" style="color:#4361ee;opacity:0.85;"></i>Add New Customer
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" style="padding:1.25rem 1.5rem;">
                     <div class="mb-3">
                         <label class="form-label">Full Name <span class="text-danger">*</span></label>
                         <input type="text" id="c_name" name="name" class="form-control" placeholder="e.g. Juan dela Cruz" required>
@@ -396,14 +648,14 @@ $consumables = mysqli_query($conn, "
                         <input type="number" id="c_phone" name="phone" class="form-control" placeholder="e.g. 09123456789" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Email <span class="text-muted" style="font-weight:400;">(optional)</span></label>
+                        <label class="form-label">Email <span class="text-muted fw-normal">(optional)</span></label>
                         <input type="email" id="c_email" name="email" class="form-control" placeholder="e.g. juan@email.com">
                     </div>
                 </div>
-                <div class="modal-footer" style="border-top:1px solid #e5e7eb;">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary saveCustomer">
-                        <i class="fas fa-save me-1"></i> Save Customer
+                <div class="modal-footer" style="border-top:1px solid #f0f2f8;padding:0.9rem 1.5rem;">
+                    <button type="button" class="btn-back" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn-add-primary saveCustomer">
+                        <i class="fas fa-check"></i> Save Customer
                     </button>
                 </div>
             </form>
@@ -429,15 +681,15 @@ document.getElementById('serviceSelect').addEventListener('change', function () 
 
     const itemsDiv = document.getElementById('infoItems');
     if (svc.items.length === 0) {
-        itemsDiv.innerHTML = '<span style="color:#6b7280;">No consumables required</span>';
+        itemsDiv.innerHTML = '<span style="color:#9ba3b8;">No consumables required</span>';
     } else {
         const qty = parseInt(document.getElementById('serviceQty').value) || 1;
-        itemsDiv.innerHTML = '<div style="color:#6b7280;margin-bottom:6px;">Requires:</div>' +
+        itemsDiv.innerHTML = '<div style="color:#9ba3b8;margin-bottom:6px;font-size:0.78rem;">Requires:</div>' +
             svc.items.map(function (itm) {
                 const needed = itm.qty * qty;
                 const ok = itm.stock >= needed;
-                return '<span class="badge me-1 mb-1" style="background:' + (ok ? '#dcfce7' : '#fee2e2') + ';color:' + (ok ? '#166534' : '#991b1b') + ';font-weight:500;">' +
-                    itm.name + ' &times;' + needed + ' <span style="opacity:.7;">(stock: ' + itm.stock + ')</span></span>';
+                return '<span class="badge me-1 mb-1" style="background:' + (ok ? '#e6f9f0' : '#fdecea') + ';color:' + (ok ? '#1a9e5f' : '#d63031') + ';font-weight:600;font-size:0.72rem;">' +
+                    itm.name + ' &times;' + needed + ' <span style="opacity:.65;">(stock: ' + itm.stock + ')</span></span>';
             }).join('');
     }
 
