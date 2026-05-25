@@ -204,3 +204,94 @@ if(isset($_POST['updateItem']))
         ]);
     }
 }
+
+if(isset($_POST['deleteItem']))
+{
+    $itemId = validate($_POST['item_id']);
+
+    if($itemId=='')
+    {
+        echo json_encode([
+            'status'=>422,
+            'message'=>'Invalid item'
+        ]);
+
+        return;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | GET ITEM DATA
+    |--------------------------------------------------------------------------
+    */
+    $checkItem = mysqli_query($conn,"
+        SELECT *
+        FROM laundry_consumables
+        WHERE id='$itemId'
+        AND branch_id='$branchId'
+        LIMIT 1
+    ");
+
+    if(mysqli_num_rows($checkItem)==0)
+    {
+        echo json_encode([
+            'status'=>404,
+            'message'=>'Item not found'
+        ]);
+
+        return;
+    }
+
+    $itemData = mysqli_fetch_assoc($checkItem);
+
+    /*
+    |--------------------------------------------------------------------------
+    | SOFT DELETE
+    |--------------------------------------------------------------------------
+    */
+    $updateQuery=mysqli_query($conn,"
+        UPDATE laundry_consumables
+        SET status='0'
+        WHERE id='$itemId'
+        AND branch_id='$branchId'
+    ");
+
+    if($updateQuery){
+
+        /*
+        |--------------------------------------------------------------------------
+        | STOCK MOVEMENT LOG
+        |--------------------------------------------------------------------------
+        */
+        $movementData = [
+
+            'consumable_id' => $itemId,
+
+            'movement_type' => 'DELETED',
+
+            'quantity' => $itemData['quantity'],
+
+            'reference_no' => 'DEL-' . time(),
+
+            'remarks' => 'Item deleted with remaining stock of: '.$itemData['quantity'],
+
+            'created_by' => $userId,
+
+            'branch_id' => $branchId
+        ];
+
+        insert('stock_movement',$movementData);
+
+        echo json_encode([
+            'status'=>200,
+            'message'=>'Item deleted successfully'
+        ]);
+
+    }else{
+
+        echo json_encode([
+            'status'=>500,
+            'message'=>'Something went wrong'
+        ]);
+    }
+}

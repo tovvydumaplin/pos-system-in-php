@@ -1,3 +1,7 @@
+    function loadInventoryTable(){
+        $('#inventoryTable').load('inventory-table.php');
+    }
+
 $(document).ready(function(){
 
     $('#addItemForm').submit(function(e){
@@ -33,9 +37,7 @@ $(document).ready(function(){
         });
     });
 
-    function loadInventoryTable(){
-        $('#inventoryTable').load('inventory-table.php');
-    }
+
     loadInventoryTable();
 
     $(document).on('click', '.adjustStockBtn', function(e){
@@ -156,6 +158,66 @@ $('#editItemForm').submit(function(e){
         }
 
     });
+
+});
+
+$(document).on('click','.deleteItemBtn',function(e){
+
+    e.preventDefault();
+
+    $('#delete_item_id')
+        .val($(this).data('id'));
+
+    $('#delete_item_name')
+        .text($(this).data('name'));
+
+    $('#deleteItemModal').modal('show');
+
+});
+
+
+$(document).on('click','.deleteItemBtn',function(e){
+
+    e.preventDefault();
+
+    let itemId = $(this).data('id');
+
+    if(confirm('Are you sure you want to delete this item?'))
+    {
+        $.ajax({
+
+            url:'inventory-backend.php',
+
+            method:'POST',
+
+            data:{
+                deleteItem:1,
+                item_id:itemId
+            },
+
+            success:function(response){
+
+                console.log(response);
+
+                let res = JSON.parse(response);
+
+                if(res.status == 200){
+
+                    alert(res.message);
+
+
+
+                }else{
+
+                    alert(res.message);
+
+                }
+
+            }
+
+        });
+    }
+    loadInventoryTable();
 
 });
 });

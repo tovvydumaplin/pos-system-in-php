@@ -6,9 +6,12 @@ SELECT
     laundry_consumables.*,
     branches.branch_name
 FROM laundry_consumables
+
 LEFT JOIN branches 
     ON branches.id = laundry_consumables.branch_id
+
 WHERE laundry_consumables.branch_id='$branchId'
+AND laundry_consumables.status=1
 ";
 
 if(isset($_GET['search']) && $_GET['search'] != ''){
@@ -102,9 +105,11 @@ if($result && mysqli_num_rows($result) > 0){
                 <li><hr class="dropdown-divider"></li>
 
                 <li>
-                    <a 
-                        href="inventory-delete.php?id=<?= $item['id']; ?>" 
-                        class="dropdown-item text-danger"
+                    <a
+                        href="#"
+                        class="dropdown-item text-danger deleteItemBtn"
+
+                        data-id="<?= $item['id']; ?>"
                     >
                         <i class="bi bi-trash me-2"></i>
                         Delete
