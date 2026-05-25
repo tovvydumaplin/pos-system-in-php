@@ -145,11 +145,19 @@
                 </div>
 
                 <div class="col-md-6">
+                    <?php
+                    $currentUser    = $_SESSION['loggedInUser'];
+                    $isSuperAdmin   = isset($currentUser['user_type']) && $currentUser['user_type'] == 'super_admin';
+                    $adminBranchId  = $currentUser['branch_id'] ?? null;
+
+                    $branches = getAll('branches');
+
+                    if ($isSuperAdmin):
+                    ?>
                     <label class="form-label">Branch</label>
                     <select name="branch_id" class="form-select">
                         <option value="">— No Branch —</option>
                         <?php
-                        $branches = getAll('branches');
                         if ($branches && mysqli_num_rows($branches) > 0) {
                             foreach ($branches as $branch) {
                                 echo '<option value="' . $branch['id'] . '">' . htmlspecialchars($branch['branch_name']) . '</option>';
@@ -158,6 +166,22 @@
                         ?>
                     </select>
                     <p class="field-hint">Assign this user to a specific branch</p>
+                    <?php else:
+                        $adminBranchName = '';
+                        if ($branches && mysqli_num_rows($branches) > 0) {
+                            foreach ($branches as $branch) {
+                                if ($branch['id'] == $adminBranchId) {
+                                    $adminBranchName = $branch['branch_name'];
+                                    break;
+                                }
+                            }
+                        }
+                    ?>
+                    <label class="form-label">Branch</label>
+                    <input type="text" class="form-control" value="<?= htmlspecialchars($adminBranchName) ?>" disabled>
+                    <input type="hidden" name="branch_id" value="<?= htmlspecialchars($adminBranchId) ?>">
+                    <p class="field-hint">Automatically set to your branch</p>
+                    <?php endif; ?>
                 </div>
 
                 <div class="col-md-6">

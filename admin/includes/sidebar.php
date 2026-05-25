@@ -150,11 +150,13 @@
 
                 <div class="sb-sidenav-menu-heading">Admin</div>
 
-                <a class="nav-link <?= $page == 'branches.php' ? 'active':''; ?>" 
+                <?php if ($_SESSION['loggedInUser']['user_type'] == 'super_admin'): ?>
+                <a class="nav-link <?= $page == 'branches.php' ? 'active':''; ?>"
                     href="<?= $baseUrl ?>branches/branches.php">
                     <div class="sb-nav-link-icon nav-icon-violet"><i class="fas fa-building"></i></div>
                     Manage Branches
                 </a>
+                <?php endif; ?>
 
                 <a class="nav-link <?= $page == 'backup-restore.php' ? 'active':''; ?>" 
                     href="<?= $baseUrl ?>backup-restore/backup-restore.php">

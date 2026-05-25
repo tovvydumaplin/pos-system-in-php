@@ -24,6 +24,7 @@ if(isset($_POST['saveItem']))
         'branch_id' => $branch_id,
         'quantity' => $qty,
         'price' => $price,
+        'status' => 1,
         'created_at' => date('Y-m-d H:i:s')
     ];
 

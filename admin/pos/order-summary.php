@@ -25,7 +25,19 @@ if(!isset($_SESSION['orderItems'])){
                         {
                             $phone = validate($_SESSION['cphone']);
                             $invoiceNo = validate($_SESSION['invoice_no']);
-                            
+
+                            // Fetch branch details for the logged-in user
+                            $branchAddress = '';
+                            $branchName    = 'TipidSulit Laundromat';
+                            $branchId      = $_SESSION['loggedInUser']['branch_id'] ?? null;
+                            if ($branchId) {
+                                $branchRow = getById('branches', $branchId);
+                                if ($branchRow && $branchRow['status'] == 200) {
+                                    $branchName    = $branchRow['data']['branch_name'];
+                                    $branchAddress = $branchRow['data']['address'];
+                                }
+                            }
+
                             $customerQuery = mysqli_query($conn, "SELECT * FROM customers WHERE phone='$phone' LIMIT 1");
                             if($customerQuery){
                                 if(mysqli_num_rows($customerQuery) > 0){
@@ -36,8 +48,10 @@ if(!isset($_SESSION['orderItems'])){
                                         <tbody>
                                             <tr>
                                                 <td style="text-align: center;" colspan="2">
-                                                    <h4 style="font-size: 23px; line-height: 30px; margin:2px; padding: 0;">TipidSulit Laundromat</h4>
-                                                    <p style="font-size: 16px; line-height: 24px; margin:2px; padding: 0;">70 G. Marcelo, Maysan, Valenzuela City, Metro Manila, 1440</p>
+                                                    <h4 style="font-size: 23px; line-height: 30px; margin:2px; padding: 0;"><?= htmlspecialchars($branchName) ?></h4>
+                                                    <?php if ($branchAddress): ?>
+                                                    <p style="font-size: 16px; line-height: 24px; margin:2px; padding: 0;"><?= htmlspecialchars($branchAddress) ?></p>
+                                                    <?php endif; ?>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -51,7 +65,9 @@ if(!isset($_SESSION['orderItems'])){
                                                     <h5 style="font-size: 20px; line-height: 30px; margin:0px; padding: 0;">Invoice Details</h5>
                                                     <p style="font-size: 14px; line-height: 20px; margin:0px; padding: 0;">Invoice No: <?= $invoiceNo; ?> </p>
                                                     <p style="font-size: 14px; line-height: 20px; margin:0px; padding: 0;">Invoice Date: <?= date('d M Y'); ?> </p>
-                                                    <p style="font-size: 14px; line-height: 20px; margin:0px; padding: 0;">Address: 70 G. Marcelo, Maysan, Valenzuela City, Metro Manila, 1440 </p>
+                                                    <?php if ($branchAddress): ?>
+                                                    <p style="font-size: 14px; line-height: 20px; margin:0px; padding: 0;">Address: <?= htmlspecialchars($branchAddress) ?></p>
+                                                    <?php endif; ?>
                                                 </td>
                                             </tr>
                                         </tbody>
