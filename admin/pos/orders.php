@@ -329,37 +329,39 @@ $isSuperAdmin = ($userType == 'super_admin');
 
     <!-- TABLE -->
     <?php
-    $query = "SELECT o.*, c.*
-              FROM orders o
-              JOIN customers c ON c.id = o.customer_id
-              WHERE 1=1";
+    $perPage     = 10;
+    $currentPage = max(1, (int)($_GET['page'] ?? 1));
 
+    $where = "WHERE 1=1";
     if ($isSuperAdmin) {
         if (isset($_GET['branch_filter']) && $_GET['branch_filter'] != '') {
             $selectedBranch = validate($_GET['branch_filter']);
-            $query .= " AND o.branch_id='$selectedBranch'";
+            $where .= " AND o.branch_id='$selectedBranch'";
         }
     } else {
-        $query .= " AND o.branch_id='$branchId'";
+        $where .= " AND o.branch_id='$branchId'";
     }
-
     if (isset($_GET['date']) && $_GET['date'] != '') {
         $date = validate($_GET['date']);
-        $query .= " AND o.order_date='$date'";
+        $where .= " AND o.order_date='$date'";
     }
-
     if (isset($_GET['payment_status']) && $_GET['payment_status'] != '') {
         $payment = validate($_GET['payment_status']);
-        $query .= " AND o.payment_mode='$payment'";
+        $where .= " AND o.payment_mode='$payment'";
     }
-
     if (isset($_GET['tracking_no']) && $_GET['tracking_no'] != '') {
         $track = validate($_GET['tracking_no']);
-        $query .= " AND o.tracking_no LIKE '%$track%'";
+        $where .= " AND o.tracking_no LIKE '%$track%'";
     }
 
-    $query .= " ORDER BY o.id DESC";
-    $orders = mysqli_query($conn, $query);
+    $baseFrom    = "FROM orders o JOIN customers c ON c.id = o.customer_id $where";
+    $countRes    = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as cnt $baseFrom"));
+    $totalRows   = (int)($countRes['cnt'] ?? 0);
+    $totalPages  = max(1, ceil($totalRows / $perPage));
+    $currentPage = min($currentPage, $totalPages);
+    $offset      = ($currentPage - 1) * $perPage;
+
+    $orders = mysqli_query($conn, "SELECT o.*, c.* $baseFrom ORDER BY o.id DESC LIMIT $perPage OFFSET $offset");
     ?>
 
     <?php if ($orders && mysqli_num_rows($orders) > 0): ?>
@@ -430,6 +432,24 @@ $isSuperAdmin = ($userType == 'super_admin');
                     <?php endforeach; ?>
                 </tbody>
             </table>
+        </div>
+        <?php
+        $pParams = $_GET; unset($pParams['page']);
+        $pBase   = '?' . (http_build_query($pParams) ? http_build_query($pParams) . '&' : '') . 'page=';
+        $pFrom   = $totalRows > 0 ? $offset + 1 : 0;
+        $pTo     = min($offset + $perPage, $totalRows);
+        $pStart  = max(1, min($currentPage - 2, $totalPages - 4));
+        $pEnd    = min($totalPages, $pStart + 4);
+        ?>
+        <div class="pagination-wrap">
+            <span class="pagination-info">Showing <?= $pFrom ?>–<?= $pTo ?> of <?= $totalRows ?></span>
+            <div class="pagination-btns">
+                <a href="<?= $pBase . ($currentPage - 1) ?>" class="page-btn <?= $currentPage <= 1 ? 'disabled' : '' ?>">‹ Prev</a>
+                <?php for ($pi = $pStart; $pi <= $pEnd; $pi++): ?>
+                    <a href="<?= $pBase . $pi ?>" class="page-btn <?= $pi == $currentPage ? 'active' : '' ?>"><?= $pi ?></a>
+                <?php endfor; ?>
+                <a href="<?= $pBase . ($currentPage + 1) ?>" class="page-btn <?= $currentPage >= $totalPages ? 'disabled' : '' ?>">Next ›</a>
+            </div>
         </div>
     </div>
 

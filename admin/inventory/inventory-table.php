@@ -1,26 +1,24 @@
 <?php
 require '../../config/function.php';
 $branchId = $_SESSION['loggedInUser']['branch_id'];
-$query = "
-SELECT 
-    laundry_consumables.*,
-    branches.branch_name
-FROM laundry_consumables
 
-LEFT JOIN branches 
-    ON branches.id = laundry_consumables.branch_id
+$perPage     = 10;
+$currentPage = max(1, (int)($_GET['page'] ?? 1));
 
-WHERE laundry_consumables.branch_id='$branchId'
-AND laundry_consumables.status=1
-";
-
-if(isset($_GET['search']) && $_GET['search'] != ''){
+$where = "WHERE laundry_consumables.branch_id='$branchId' AND laundry_consumables.status=1";
+if (isset($_GET['search']) && $_GET['search'] != '') {
     $search = validate($_GET['search']);
-    $query .= " AND item_name LIKE '%$search%'";
+    $where .= " AND item_name LIKE '%$search%'";
 }
-$query .= " ORDER BY id ASC";
 
-$result = mysqli_query($conn, $query);
+$baseFrom    = "FROM laundry_consumables LEFT JOIN branches ON branches.id = laundry_consumables.branch_id $where";
+$countRes    = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as cnt $baseFrom"));
+$totalRows   = (int)($countRes['cnt'] ?? 0);
+$totalPages  = max(1, ceil($totalRows / $perPage));
+$currentPage = min($currentPage, $totalPages);
+$offset      = ($currentPage - 1) * $perPage;
+
+$result = mysqli_query($conn, "SELECT laundry_consumables.*, branches.branch_name $baseFrom ORDER BY laundry_consumables.id ASC LIMIT $perPage OFFSET $offset");
 
 if($result && mysqli_num_rows($result) > 0){
 ?>
@@ -127,7 +125,29 @@ if($result && mysqli_num_rows($result) > 0){
     </tbody>
 </table>
 
+<?php if ($totalPages > 1):
+    $pFrom  = $totalRows > 0 ? $offset + 1 : 0;
+    $pTo    = min($offset + $perPage, $totalRows);
+    $pStart = max(1, min($currentPage - 2, $totalPages - 4));
+    $pEnd   = min($totalPages, $pStart + 4);
+    $search = isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '';
+?>
+<div class="pagination-wrap">
+    <span class="pagination-info">Showing <?= $pFrom ?>–<?= $pTo ?> of <?= $totalRows ?></span>
+    <div class="pagination-btns">
+        <span onclick="loadInventoryTable(<?= $currentPage - 1 ?>, '<?= $search ?>')"
+              class="page-btn <?= $currentPage <= 1 ? 'disabled' : '' ?>">‹ Prev</span>
+        <?php for ($pi = $pStart; $pi <= $pEnd; $pi++): ?>
+            <span onclick="loadInventoryTable(<?= $pi ?>, '<?= $search ?>')"
+                  class="page-btn <?= $pi == $currentPage ? 'active' : '' ?>"><?= $pi ?></span>
+        <?php endfor; ?>
+        <span onclick="loadInventoryTable(<?= $currentPage + 1 ?>, '<?= $search ?>')"
+              class="page-btn <?= $currentPage >= $totalPages ? 'disabled' : '' ?>">Next ›</span>
+    </div>
+</div>
+<?php endif; ?>
+
 <?php } else {
-    echo "<h5>No Inventory Found</h5>";
+    echo "<div style='padding:2.5rem;text-align:center;color:#9ba3b8;'><i class='fas fa-box-open' style='font-size:2rem;opacity:0.3;display:block;margin-bottom:0.5rem;'></i>No Inventory Found</div>";
 }
 ?>

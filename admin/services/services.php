@@ -274,40 +274,34 @@
     $isSuperAdmin = isset($_SESSION['loggedInUser']['user_type']) && $_SESSION['loggedInUser']['user_type'] == 'super_admin';
     $userBranchId = $_SESSION['loggedInUser']['branch_id'] ?? null;
 
-    if ($isSuperAdmin) {
-        $services = mysqli_query($conn, "
-            SELECT s.*,
-                b.branch_name,
-                GROUP_CONCAT(
-                    CONCAT(lc.item_name, ' x', si.quantity_required)
-                    ORDER BY lc.item_name ASC
-                    SEPARATOR '||'
-                ) AS items_list
-            FROM services s
-            LEFT JOIN branches b ON b.id = s.branch_id
-            LEFT JOIN service_items si ON si.service_id = s.id
-            LEFT JOIN laundry_consumables lc ON lc.id = si.consumable_id
-            GROUP BY s.id
-            ORDER BY s.id DESC
-        ");
-    } else {
-        $services = mysqli_query($conn, "
-            SELECT s.*,
-                b.branch_name,
-                GROUP_CONCAT(
-                    CONCAT(lc.item_name, ' x', si.quantity_required)
-                    ORDER BY lc.item_name ASC
-                    SEPARATOR '||'
-                ) AS items_list
-            FROM services s
-            LEFT JOIN branches b ON b.id = s.branch_id
-            LEFT JOIN service_items si ON si.service_id = s.id
-            LEFT JOIN laundry_consumables lc ON lc.id = si.consumable_id
-            WHERE s.branch_id = '$userBranchId'
-            GROUP BY s.id
-            ORDER BY s.id DESC
-        ");
-    }
+    $perPage     = 10;
+    $currentPage = max(1, (int)($_GET['page'] ?? 1));
+    $svcWhere    = $isSuperAdmin ? "" : "WHERE s.branch_id = '$userBranchId'";
+
+    $countRes    = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(DISTINCT s.id) as cnt FROM services s $svcWhere"));
+    $totalRows   = (int)($countRes['cnt'] ?? 0);
+    $totalPages  = max(1, ceil($totalRows / $perPage));
+    $currentPage = min($currentPage, $totalPages);
+    $offset      = ($currentPage - 1) * $perPage;
+
+    $svcQuery = "
+        SELECT s.*,
+            b.branch_name,
+            GROUP_CONCAT(
+                CONCAT(lc.item_name, ' x', si.quantity_required)
+                ORDER BY lc.item_name ASC
+                SEPARATOR '||'
+            ) AS items_list
+        FROM services s
+        LEFT JOIN branches b ON b.id = s.branch_id
+        LEFT JOIN service_items si ON si.service_id = s.id
+        LEFT JOIN laundry_consumables lc ON lc.id = si.consumable_id
+        $svcWhere
+        GROUP BY s.id
+        ORDER BY s.id DESC
+        LIMIT $perPage OFFSET $offset
+    ";
+    $services = mysqli_query($conn, $svcQuery);
 
     if (!$services) {
         echo '<div class="alert alert-danger">Something went wrong loading services.</div>';
@@ -374,6 +368,26 @@
         </div>
         <?php endforeach; ?>
     </div>
+
+    <?php
+    $pParams = $_GET; unset($pParams['page']);
+    $pBase   = '?' . (http_build_query($pParams) ? http_build_query($pParams) . '&' : '') . 'page=';
+    $pFrom   = $totalRows > 0 ? $offset + 1 : 0;
+    $pTo     = min($offset + $perPage, $totalRows);
+    $pStart  = max(1, min($currentPage - 2, $totalPages - 4));
+    $pEnd    = min($totalPages, $pStart + 4);
+    if ($totalPages > 1): ?>
+    <div class="pagination-wrap mt-3" style="border:1px solid #e6e9f0;border-radius:12px;background:#fafbfc;">
+        <span class="pagination-info">Showing <?= $pFrom ?>–<?= $pTo ?> of <?= $totalRows ?></span>
+        <div class="pagination-btns">
+            <a href="<?= $pBase . ($currentPage - 1) ?>" class="page-btn <?= $currentPage <= 1 ? 'disabled' : '' ?>">‹ Prev</a>
+            <?php for ($pi = $pStart; $pi <= $pEnd; $pi++): ?>
+                <a href="<?= $pBase . $pi ?>" class="page-btn <?= $pi == $currentPage ? 'active' : '' ?>"><?= $pi ?></a>
+            <?php endfor; ?>
+            <a href="<?= $pBase . ($currentPage + 1) ?>" class="page-btn <?= $currentPage >= $totalPages ? 'disabled' : '' ?>">Next ›</a>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <?php else: ?>
     <div class="empty-state">

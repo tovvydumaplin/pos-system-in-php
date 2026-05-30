@@ -75,7 +75,9 @@
                                             <h5 style="font-size: 20px; line-height: 30px; margin:0px; padding: 0;">Invoice Details</h5>
                                             <p style="font-size: 14px; line-height: 20px; margin:0px; padding: 0;">Invoice No: <?= $orderDataRow['invoice_no']; ?> </p>
                                             <p style="font-size: 14px; line-height: 20px; margin:0px; padding: 0;">Invoice Date: <?= date('d M Y'); ?> </p>
-                                            <p style="font-size: 14px; line-height: 20px; margin:0px; padding: 0;">Address: 70 G. Marcelo, Maysan, Valenzuela City, Metro Manila, 1440 </p>
+                                            <?php if (!empty($orderDataRow['branch_address'])): ?>
+                                            <p style="font-size: 14px; line-height: 20px; margin:0px; padding: 0;">Address: <?= htmlspecialchars($orderDataRow['branch_address']) ?></p>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 </tbody>

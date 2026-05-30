@@ -1,5 +1,10 @@
-    function loadInventoryTable(){
-        $('#inventoryTable').load('inventory-table.php');
+    function loadInventoryTable(page, search) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const p = page  !== undefined ? page  : (urlParams.get('page')   || 1);
+        const s = search !== undefined ? search : (urlParams.get('search') || '');
+        let url = 'inventory-table.php?page=' + p;
+        if (s) url += '&search=' + encodeURIComponent(s);
+        $('#inventoryTable').load(url);
     }
 
 $(document).ready(function(){

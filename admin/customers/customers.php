@@ -114,11 +114,17 @@
     $isSuperAdmin = isset($_SESSION['loggedInUser']['user_type']) && $_SESSION['loggedInUser']['user_type'] == 'super_admin';
     $userBranchId = $_SESSION['loggedInUser']['branch_id'] ?? null;
 
-    if ($isSuperAdmin) {
-        $customers = getAll('customers');
-    } else {
-        $customers = mysqli_query($conn, "SELECT * FROM customers WHERE branch_id = '$userBranchId' ORDER BY id DESC");
-    }
+    $perPage     = 10;
+    $currentPage = max(1, (int)($_GET['page'] ?? 1));
+    $where       = $isSuperAdmin ? "WHERE 1=1" : "WHERE branch_id = '$userBranchId'";
+
+    $countRes    = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as cnt FROM customers $where"));
+    $totalRows   = (int)($countRes['cnt'] ?? 0);
+    $totalPages  = max(1, ceil($totalRows / $perPage));
+    $currentPage = min($currentPage, $totalPages);
+    $offset      = ($currentPage - 1) * $perPage;
+
+    $customers = mysqli_query($conn, "SELECT * FROM customers $where ORDER BY id DESC LIMIT $perPage OFFSET $offset");
 
     if (!$customers) {
         echo '<div class="alert alert-danger">Something went wrong loading customers.</div>';
@@ -190,6 +196,24 @@
                     <?php endforeach; ?>
                 </tbody>
             </table>
+        </div>
+        <?php
+        $pParams = $_GET; unset($pParams['page']);
+        $pBase   = '?' . (http_build_query($pParams) ? http_build_query($pParams) . '&' : '') . 'page=';
+        $pFrom   = $totalRows > 0 ? $offset + 1 : 0;
+        $pTo     = min($offset + $perPage, $totalRows);
+        $pStart  = max(1, min($currentPage - 2, $totalPages - 4));
+        $pEnd    = min($totalPages, $pStart + 4);
+        ?>
+        <div class="pagination-wrap">
+            <span class="pagination-info">Showing <?= $pFrom ?>–<?= $pTo ?> of <?= $totalRows ?></span>
+            <div class="pagination-btns">
+                <a href="<?= $pBase . ($currentPage - 1) ?>" class="page-btn <?= $currentPage <= 1 ? 'disabled' : '' ?>">‹ Prev</a>
+                <?php for ($pi = $pStart; $pi <= $pEnd; $pi++): ?>
+                    <a href="<?= $pBase . $pi ?>" class="page-btn <?= $pi == $currentPage ? 'active' : '' ?>"><?= $pi ?></a>
+                <?php endfor; ?>
+                <a href="<?= $pBase . ($currentPage + 1) ?>" class="page-btn <?= $currentPage >= $totalPages ? 'disabled' : '' ?>">Next ›</a>
+            </div>
         </div>
         <?php else: ?>
         <div class="empty-state">

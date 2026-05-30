@@ -353,7 +353,7 @@ $recentOrders = mysqli_query($conn, "
             </div>
 
             <!-- Users -->
-            <div class="data-panel">
+            <div class="data-panel mb-4">
                 <div class="data-panel-header">
                     <span><i class="fas fa-users me-2"></i>Users</span>
                 </div>

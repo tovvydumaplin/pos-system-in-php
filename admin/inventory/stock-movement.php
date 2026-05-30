@@ -215,36 +215,38 @@ $isSuperAdmin = ($userType == 'super_admin');
 
     <!-- TABLE -->
     <?php
-    $query = "
-        SELECT sm.*, lc.item_name, u.name AS created_by_name, b.branch_name
-        FROM stock_movement sm
+    $joins = "FROM stock_movement sm
         LEFT JOIN laundry_consumables lc ON lc.id = sm.consumable_id
         LEFT JOIN users u ON u.id = sm.created_by
-        LEFT JOIN branches b ON b.id = sm.branch_id
-        WHERE 1=1
-    ";
+        LEFT JOIN branches b ON b.id = sm.branch_id";
 
+    $where = "WHERE 1=1";
     if (!$isSuperAdmin) {
-        $query .= " AND sm.branch_id='$branchId'";
+        $where .= " AND sm.branch_id='$branchId'";
     }
-
     if (isset($_GET['search']) && $_GET['search'] != '') {
         $search = validate($_GET['search']);
-        $query .= " AND (lc.item_name LIKE '%$search%' OR sm.reference_no LIKE '%$search%')";
+        $where .= " AND (lc.item_name LIKE '%$search%' OR sm.reference_no LIKE '%$search%')";
     }
-
     if (isset($_GET['movement_type']) && $_GET['movement_type'] != '') {
         $movementType = validate($_GET['movement_type']);
-        $query .= " AND sm.movement_type='$movementType'";
+        $where .= " AND sm.movement_type='$movementType'";
     }
-
     if ($isSuperAdmin && isset($_GET['branch_id']) && $_GET['branch_id'] != '') {
         $filterBranch = validate($_GET['branch_id']);
-        $query .= " AND sm.branch_id='$filterBranch'";
+        $where .= " AND sm.branch_id='$filterBranch'";
     }
 
-    $query .= " ORDER BY sm.id DESC";
-    $result = mysqli_query($conn, $query);
+    $perPage     = 10;
+    $currentPage = max(1, (int)($_GET['page'] ?? 1));
+
+    $countRes    = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as cnt $joins $where"));
+    $totalRows   = (int)($countRes['cnt'] ?? 0);
+    $totalPages  = max(1, ceil($totalRows / $perPage));
+    $currentPage = min($currentPage, $totalPages);
+    $offset      = ($currentPage - 1) * $perPage;
+
+    $result = mysqli_query($conn, "SELECT sm.*, lc.item_name, u.name AS created_by_name, b.branch_name $joins $where ORDER BY sm.id DESC LIMIT $perPage OFFSET $offset");
     ?>
 
     <div class="movement-table-wrap">
@@ -296,6 +298,24 @@ $isSuperAdmin = ($userType == 'super_admin');
                     <?php endforeach; ?>
                 </tbody>
             </table>
+        </div>
+        <?php
+        $pParams = $_GET; unset($pParams['page']);
+        $pBase   = '?' . (http_build_query($pParams) ? http_build_query($pParams) . '&' : '') . 'page=';
+        $pFrom   = $totalRows > 0 ? $offset + 1 : 0;
+        $pTo     = min($offset + $perPage, $totalRows);
+        $pStart  = max(1, min($currentPage - 2, $totalPages - 4));
+        $pEnd    = min($totalPages, $pStart + 4);
+        ?>
+        <div class="pagination-wrap">
+            <span class="pagination-info">Showing <?= $pFrom ?>–<?= $pTo ?> of <?= $totalRows ?></span>
+            <div class="pagination-btns">
+                <a href="<?= $pBase . ($currentPage - 1) ?>" class="page-btn <?= $currentPage <= 1 ? 'disabled' : '' ?>">‹ Prev</a>
+                <?php for ($pi = $pStart; $pi <= $pEnd; $pi++): ?>
+                    <a href="<?= $pBase . $pi ?>" class="page-btn <?= $pi == $currentPage ? 'active' : '' ?>"><?= $pi ?></a>
+                <?php endfor; ?>
+                <a href="<?= $pBase . ($currentPage + 1) ?>" class="page-btn <?= $currentPage >= $totalPages ? 'disabled' : '' ?>">Next ›</a>
+            </div>
         </div>
         <?php else: ?>
         <div class="empty-state">

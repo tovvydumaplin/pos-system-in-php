@@ -263,13 +263,19 @@
 
     <!-- TABLE -->
     <?php
-    $search = isset($_GET['search']) ? $_GET['search'] : '';
-    if ($search != '') {
-        $query = "SELECT * FROM branches WHERE branch_name LIKE '%$search%' OR address LIKE '%$search%' ORDER BY id DESC";
-    } else {
-        $query = "SELECT * FROM branches ORDER BY id DESC";
-    }
-    $branches = mysqli_query($conn, $query);
+    $perPage     = 10;
+    $currentPage = max(1, (int)($_GET['page'] ?? 1));
+    $search      = isset($_GET['search']) ? $_GET['search'] : '';
+
+    $where = $search != '' ? "WHERE branch_name LIKE '%$search%' OR address LIKE '%$search%'" : "WHERE 1=1";
+
+    $countRes    = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as cnt FROM branches $where"));
+    $totalRows   = (int)($countRes['cnt'] ?? 0);
+    $totalPages  = max(1, ceil($totalRows / $perPage));
+    $currentPage = min($currentPage, $totalPages);
+    $offset      = ($currentPage - 1) * $perPage;
+
+    $branches = mysqli_query($conn, "SELECT * FROM branches $where ORDER BY id DESC LIMIT $perPage OFFSET $offset");
     ?>
 
     <div class="branches-table-wrap">
@@ -316,6 +322,24 @@
                     <?php endforeach; ?>
                 </tbody>
             </table>
+        </div>
+        <?php
+        $pParams = $_GET; unset($pParams['page']);
+        $pBase   = '?' . (http_build_query($pParams) ? http_build_query($pParams) . '&' : '') . 'page=';
+        $pFrom   = $totalRows > 0 ? $offset + 1 : 0;
+        $pTo     = min($offset + $perPage, $totalRows);
+        $pStart  = max(1, min($currentPage - 2, $totalPages - 4));
+        $pEnd    = min($totalPages, $pStart + 4);
+        ?>
+        <div class="pagination-wrap">
+            <span class="pagination-info">Showing <?= $pFrom ?>–<?= $pTo ?> of <?= $totalRows ?></span>
+            <div class="pagination-btns">
+                <a href="<?= $pBase . ($currentPage - 1) ?>" class="page-btn <?= $currentPage <= 1 ? 'disabled' : '' ?>">‹ Prev</a>
+                <?php for ($pi = $pStart; $pi <= $pEnd; $pi++): ?>
+                    <a href="<?= $pBase . $pi ?>" class="page-btn <?= $pi == $currentPage ? 'active' : '' ?>"><?= $pi ?></a>
+                <?php endfor; ?>
+                <a href="<?= $pBase . ($currentPage + 1) ?>" class="page-btn <?= $currentPage >= $totalPages ? 'disabled' : '' ?>">Next ›</a>
+            </div>
         </div>
         <?php else: ?>
         <div class="empty-state">
